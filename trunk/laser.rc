@@ -1,0 +1,7 @@
+#include <wx/msw/wx.rc>
+ID_LOGO BITMAP "rcam.bmp"
+ID_BITMAP_ESTOP BITMAP "stop.bmp"
+ID_BITMAP_POOL BITMAP "pool.bmp"
+ID_BITMAP_PONI BITMAP "poni.bmp"
+ID_BITMAP_RUN BITMAP "run1.bmp"
+ID_BITMAP_RCAM BITMAP "rcam1.bmp"
