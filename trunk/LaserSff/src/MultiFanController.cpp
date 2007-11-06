@@ -44,7 +44,6 @@ bool MultiFabController::Init(int port)
     }
     
     m_init = ok1 && ok2 && ok3;
-    m_init = true;
     m_laserPtr->SetDaqboard(m_daqboard);
 
     return m_init;
