@@ -24,15 +24,14 @@ bool YagLaser::Connect(int port)
         return true;
     }
 
-    m_serialPortPtr = boost::shared_ptr<wxSerialPort>(new wxSerialPort());
+    m_serialPortPtr = boost::shared_ptr<SerialPort>(new SerialPort());
     stringstream ss;
-    ss << "com" << port;
+    ss << "COM" << port;
 
-    int ok = m_serialPortPtr->Open(ss.str().c_str());
+    int ok = m_serialPortPtr->Open(ss.str().c_str(), 4800);
     if(ok < 0) {
         return false;
     }
-    m_serialPortPtr->SetBaudRate(wxBAUD_4800);
     m_connected = true;
     return true;
 }
@@ -48,17 +47,21 @@ bool YagLaser::Disconnect()
 
 bool YagLaser::OpenShutter()
 {
-    string cmd("C1\r");
-    Write(cmd);
-    ReadResponse();
+    for(int i = 0; i < 3; i++) {
+        string cmd("C1\r");
+        Write(cmd);
+        ReadResponse();
+    }
     return true;
 }
 
 bool YagLaser::CloseShutter()
 {
-    string cmd("C0\r");
-    Write(cmd);
-    ReadResponse();
+    for(int i = 0; i < 3; i++) {
+        string cmd("C0\r");
+        Write(cmd);
+        ReadResponse();
+    }
     return true;
 }
 
@@ -87,68 +90,90 @@ bool YagLaser::SetLaserStandby()
     return true;
 }
 
-string YagLaser::LaserStatus()
+string YagLaser::GetLaserStatus()
 {
     if(!m_connected) {
         return "not connected";
     }
+    string st;
+    for(int i = 0; i < 3; i++) {
+        string cmd("O1\r");
 
-    string cmd("O1\r");
-    
-    Write(cmd);
-    string st = ReadResponse();
-    if(st == "OF") {
-        
-    } else if(st == "ST") {
-        
-    } else if(st == "ON") {
-    
-    } else if(st == "S1") {
-    
-    } else if(st == "S2") {
-    
-    } else {
-        st = "Unknown";
-    }
-
-    return st;
-}
-
-string YagLaser::ShutterStatus()
-{
-    string cmd("O2\r");
-    
-    Write(cmd);
-    string st = ReadResponse();
-    if(st != "OP" && st != "CL") {
-        return "Unknown";
+        Write(cmd);
+        st = ReadResponse();
+        if(st == "OF") {
+            st = "Off";        
+        } else if(st == "ST") {
+            st = "Standby";
+        } else if(st == "ON") {
+            st = "On";
+        } else if(st == "S1") {
+            st = "Standby_1";
+        } else if(st == "S2") {
+            st = "Standby_2";
+        } else {
+            st = "Unknown";
+        }
     }
     return st;
 }
 
-string YagLaser::PowerPercent()
+string YagLaser::GetShutterStatus()
 {
-    string cmd("OA\r");
-    Write(cmd);
-    string response = ReadResponse();
+    string st;
+    for(int i = 0; i < 3; i++) {
+        string cmd("O2\r");
 
-    try {
-        boost::lexical_cast<int>(response);
-    } catch(boost::bad_lexical_cast &err) {
-        response = "unknown";
+        Write(cmd);
+        st = ReadResponse();
+        if(st == "OP") {
+            st = "Open";
+        } else if(st == "CL") {
+            st = "Close";
+        } else {
+            st = "Unknown";
+        }
+    }
+    return st;
+}
+
+string YagLaser::GetPowerPercent()
+{
+    string response;
+    int power;
+    for(int i = 0; i < 3; i++) {
+        string cmd("OA\r");
+        Write(cmd);
+        response = ReadResponse();
+
+        try {
+            power = boost::lexical_cast<int>(response);
+            wxString s;
+            s << power;
+            response = s.c_str();
+        } catch(boost::bad_lexical_cast &err) {
+            response = "unknown";
+        }
     }
     return response;
 }
 
-string YagLaser::PowerWatt()
+string YagLaser::GetPowerWatt()
 {
-    string cmd("O3\r");
-    Write(cmd);
-    string response = ReadResponse();
-    try {
-        boost::lexical_cast<int>(response);
-    } catch(boost::bad_lexical_cast& err) {
-        response = "unknown";
+    string response;
+
+    for(int i = 0; i < 3; i++) {
+        string cmd("O3\r");
+        Write(cmd);
+        response = ReadResponse();
+        try {
+            int p = boost::lexical_cast<int>(response);
+            wxString s;
+            s << p;
+            response = s.c_str();
+        } catch(boost::bad_lexical_cast& err) {
+            response = "unknown";
+        }
     }
     return response;
 }
@@ -211,15 +236,24 @@ bool YagLaser::SetEPCLowValue()
     return true;
 }
 
-string YagLaser::EPCStatus()
+string YagLaser::GetEPCStatus()
 {
-    string cmd("0j\r");
+    string cmd("Oj\r");
 
     Write(cmd);
     string response = ReadResponse();
-
+    
     try {
-        boost::lexical_cast<int>(response);
+        int code = boost::lexical_cast<int>(response);
+        string response;
+        if(code == 0) {
+            response = "Epc Off";
+        } else if(code == 1) {
+            response = "Epc On";
+        } else {
+            response = "Unknow";
+        }
+        return response;
     } catch(boost::bad_lexical_cast& err) {
         response = "unknown";
     }
@@ -228,20 +262,18 @@ string YagLaser::EPCStatus()
 
 string YagLaser::ReadResponse()
 {
-    char *buf = NULL;
-    m_serialPortPtr->ReadUntilEOS(&buf);
+    string response;
+    int len = m_serialPortPtr->Read(response);
 
-    string response = buf;
-    delete [] buf;
     return response;
 }
 
 void YagLaser::Write(const string& cmd)
 {
-    m_serialPortPtr->Write(const_cast<char*>(cmd.c_str()), cmd.size());
+    int n = m_serialPortPtr->Write(cmd);
 }
 
-string YagLaser::InterlockStatus()
+string YagLaser::GetInterlockStatus()
 {
     string cmd("O5\r");
     Write(cmd);
@@ -286,7 +318,7 @@ string YagLaser::InterlockStatus()
         return "unknown";
     }
 
-    int n = sizeof(Interlock);
+    int n = sizeof(Interlock)/sizeof(char*);
     if(index >= 0 && index < n) {
         return Interlock[index];
     } else {

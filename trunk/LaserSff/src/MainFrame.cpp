@@ -223,36 +223,36 @@ void MainFrame::CreateLaserStatusControls(wxBoxSizer *topsizer, wxPanel* panel)
     
     // laser status
     gridsizer->Add(new wxStaticText(panel, -1, "Laser"), wxSizerFlags().Align(wxALIGN_LEFT));
-    m_laserStatusText = new wxTextCtrl(panel, -1, "On", wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    m_laserStatusText = new wxTextCtrl(panel, -1, "", wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
     m_laserStatusText->SetToolTip("last status: On,Off or standby");
     gridsizer->Add(m_laserStatusText, wxSizerFlags().Align(wxALIGN_LEFT).Expand());
     
     // shutter
     gridsizer->Add(new wxStaticText(panel, -1, "Shutter"), wxSizerFlags().Align(wxALIGN_LEFT));
-    m_shutterStatusText = new wxTextCtrl(panel, -1, "Closed", wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    m_shutterStatusText = new wxTextCtrl(panel, -1, "", wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
     m_shutterStatusText->SetToolTip("shutter: Open or close");
     gridsizer->Add(m_shutterStatusText, wxSizerFlags().Align(wxALIGN_LEFT).Expand());
 
     // power percent
     gridsizer->Add(new wxStaticText(panel, -1, "Power Percent(%)"), wxSizerFlags().Align(wxALIGN_LEFT));
-    m_powerPercentText = new wxTextCtrl(panel, -1, "50", wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    m_powerPercentText = new wxTextCtrl(panel, -1, "", wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
     m_powerPercentText->SetToolTip("power percent (1-100)%");
     gridsizer->Add(m_powerPercentText, wxSizerFlags().Align(wxALIGN_LEFT).Expand());
     
     // power watt
     gridsizer->Add(new wxStaticText(panel, -1, "Power(watt)"), wxSizerFlags().Align(wxALIGN_LEFT));
-    m_powerWattText = new wxTextCtrl(panel, -1, "211", wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    m_powerWattText = new wxTextCtrl(panel, -1, "", wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
     m_powerWattText->SetToolTip("power in watt");
     gridsizer->Add(m_powerWattText, wxSizerFlags().Align(wxALIGN_LEFT).Expand());
 
     // EPC
     gridsizer->Add(new wxStaticText(panel, -1, "EPC"), wxSizerFlags().Align(wxALIGN_LEFT));
-    m_epcText = new wxTextCtrl(panel, -1, "OK", wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    m_epcText = new wxTextCtrl(panel, -1, "", wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
     gridsizer->Add(m_epcText, wxSizerFlags().Align(wxALIGN_LEFT).Expand());
     
     // Interlock
     gridsizer->Add(new wxStaticText(panel, -1, "Interlock"), wxSizerFlags().Align(wxALIGN_LEFT));
-    m_interlockText = new wxTextCtrl(panel, -1, "OK", wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    m_interlockText = new wxTextCtrl(panel, -1, "", wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
     gridsizer->Add(m_interlockText, wxSizerFlags().Align(wxALIGN_LEFT).Expand());
 }
 
@@ -478,22 +478,31 @@ void MainFrame::OnCheckLaser(wxCommandEvent& event)
         return;
     }    
 
-    string laser = m_laser->LaserStatus();
+    string laser = m_laser->GetLaserStatus();
     m_laserStatusText->SetLabel(laser.c_str());
+    if(laser == "On") {
+        m_laserStatusText->SetBackgroundColour(*wxRED);
+    } else {
+        m_laserStatusText->SetBackgroundColour(*wxWHITE);
+    }
     
-    string shutter = m_laser->ShutterStatus();
+    string shutter = m_laser->GetShutterStatus();
     m_shutterStatusText->SetLabel(shutter.c_str());
-
-    string powerPercent = m_laser->PowerPercent();
+    if(shutter == "Open") {
+        m_shutterStatusText->SetBackgroundColour(*wxRED);
+    } else {
+        m_shutterStatusText->SetBackgroundColour(*wxWHITE);
+    }
+    string powerPercent = m_laser->GetPowerPercent();
     m_powerPercentText->SetLabel(powerPercent.c_str());
 
-    string powerWatt = m_laser->PowerWatt();
+    string powerWatt = m_laser->GetPowerWatt();
     m_powerWattText->SetLabel(powerWatt);
 
-    string epc = m_laser->EPCStatus();
+    string epc = m_laser->GetEPCStatus();
     m_epcText->SetLabel(epc.c_str());
 
-    string ilock = m_laser->InterlockStatus();
+    string ilock = m_laser->GetInterlockStatus();
     m_interlockText->SetLabel(ilock.c_str());
 
 }

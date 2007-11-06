@@ -262,6 +262,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\SerialPort.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\YagLaser.cpp"
 				>
 			</File>
@@ -341,6 +345,10 @@
 			</File>
 			<File
 				RelativePath=".\include\PCI1200.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\SerialPort.h"
 				>
 			</File>
 			<File
