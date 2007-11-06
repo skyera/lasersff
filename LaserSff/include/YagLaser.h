@@ -2,8 +2,9 @@
 #define RCAM_YAGLASER_H
 
 #include "Laser.h"
-#include <wx/ctb/iobase.h>
-#include <wx/ctb/serport.h>
+//#include <wx/ctb/iobase.h>
+//#include <wx/ctb/serport.h>
+#include "SerialPort.h"
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include "PCI1200.h"
@@ -26,10 +27,10 @@ public:
     bool SetLaserOff();
     bool SetLaserStandby();
 
-    std::string LaserStatus();
-    std::string ShutterStatus();
-    virtual std::string PowerPercent();
-    virtual std::string PowerWatt();
+    std::string GetLaserStatus();
+    std::string GetShutterStatus();
+    virtual std::string GetPowerPercent();
+    virtual std::string GetPowerWatt();
     bool SetEPCOn();
     bool SetEPCOff();
 
@@ -39,8 +40,8 @@ public:
 
     bool SetEPCHighValue();
     bool SetEPCLowValue();
-    std::string EPCStatus();
-    std::string InterlockStatus();
+    std::string GetEPCStatus();
+    std::string GetInterlockStatus();
     virtual void SetDaqboard(const boost::shared_ptr<DaqBoard>& board);
 private:
     std::string ReadResponse();
@@ -48,7 +49,7 @@ private:
 
     // data
     bool m_connected;
-    boost::shared_ptr<wxSerialPort> m_serialPortPtr;
+    boost::shared_ptr<SerialPort> m_serialPortPtr;
     boost::shared_ptr<DaqBoard> m_daqboard;
 };
 

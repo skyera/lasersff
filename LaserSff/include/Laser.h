@@ -19,10 +19,10 @@ public:
     virtual bool OpenShutter() = 0;
     virtual bool CloseShutter() = 0;
     
-    virtual std::string LaserStatus() = 0;
-    virtual std::string ShutterStatus() = 0;
-    virtual std::string PowerPercent() = 0;
-    virtual std::string PowerWatt() = 0;
+    virtual std::string GetLaserStatus() = 0;
+    virtual std::string GetShutterStatus() = 0;
+    virtual std::string GetPowerPercent() = 0;
+    virtual std::string GetPowerWatt() = 0;
     virtual bool SingleShot() = 0;
     
     virtual bool SetLaserOn() = 0;
@@ -30,8 +30,8 @@ public:
     virtual bool SetLaserStandby() = 0;
 
     virtual bool SetPower(int percent) = 0;
-    virtual std::string EPCStatus() = 0;
-    virtual std::string InterlockStatus() = 0;
+    virtual std::string GetEPCStatus() = 0;
+    virtual std::string GetInterlockStatus() = 0;
     virtual bool SetEPCOn() = 0;
     virtual void SetDaqboard(const boost::shared_ptr<DaqBoard>& board) = 0;
 
