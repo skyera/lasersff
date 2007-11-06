@@ -184,7 +184,7 @@ bool YagLaser::SetEPCOn()
     if(!m_connected) {
         return false;
     }
-    
+
     string cmd("i1\r");
 
     Write(cmd);
@@ -212,11 +212,11 @@ bool YagLaser::SingleShot()
 
 bool YagLaser::SetPower(int percent)
 {
-//    stringstream ss;
-//    ss << "G" << percent;
+    //    stringstream ss;
+    //    ss << "G" << percent;
 
-//    Write(ss.str());
-//    ReadResponse();
+    //    Write(ss.str());
+    //    ReadResponse();
     m_daqboard->SetLaserPower(percent);
     return true;
 }
@@ -243,7 +243,7 @@ string YagLaser::GetEPCStatus()
 
     Write(cmd);
     string response = ReadResponse();
-    
+
     try {
         int code = boost::lexical_cast<int>(response);
         string response;
@@ -280,39 +280,39 @@ string YagLaser::GetInterlockStatus()
     string cmd("O5\r");
     Write(cmd);
     string response = ReadResponse();
-    
+
     static char *Interlock[] = {"OK", // 0
-						"Interlock Diagnostic Failure",//1
-						"PSU 1 Thermal Overload", //2
-						"PSU 2 Thermal Overload (Not MW500)", //3
-		                "PSU 3 Thermal Overload (MW2000 only)", //4
-						"PSU 4 Thermal Overload (MW2000 only)",//5
-		                "DC 1 Thermal Overload", //6
-		                "DC 2 Thermal Overload (Not MW500)",//7
-		                "DC 3 Thermal Overload (MW2000 only)", //8
-		                "Cooling Water Level Low", //9
-		                "Keyswitch Off",//10
-		                "Shutter Failure",//11
-		                "Shutter Temperature High",//12
-		                "Fibre Continuity Monitor 1",//13
-		                "Cooling Water Temperature High",//14
-		                "Beam Dump Water Detector",//15
-		                "Fibre Continuity Monitor 2 (if fitted)",//16
-		                "- Unused",//17
-		                "Customer remote interlock",//18
-		                "Pump Overload",//19
-		                "Pumping Chamber 1 Water Flow low", //20
-		                "P/Chamber 2 Water Flow low (Not MW500)", //21
-		                "P/Chamber 3 Water Flow low (MW2000 only)",//22
-		                "P/Chamber 4 Water Flow low (MW2000 only)",//23
-		                "Beam Dump Water Flow Low",//24
-		                "Interlock Not Determined",//25
-		                "Power Trip (Hi) Activated",//26
-		                "Power Trip (Lo) Activated",//27
-		                "Lamp Life Trip Activated",//28
-		                "DC Bus Voltage Low or Remote Emergency-stop"
+        "Interlock Diagnostic Failure",//1
+        "PSU 1 Thermal Overload", //2
+        "PSU 2 Thermal Overload (Not MW500)", //3
+        "PSU 3 Thermal Overload (MW2000 only)", //4
+        "PSU 4 Thermal Overload (MW2000 only)",//5
+        "DC 1 Thermal Overload", //6
+        "DC 2 Thermal Overload (Not MW500)",//7
+        "DC 3 Thermal Overload (MW2000 only)", //8
+        "Cooling Water Level Low", //9
+        "Keyswitch Off",//10
+        "Shutter Failure",//11
+        "Shutter Temperature High",//12
+        "Fibre Continuity Monitor 1",//13
+        "Cooling Water Temperature High",//14
+        "Beam Dump Water Detector",//15
+        "Fibre Continuity Monitor 2 (if fitted)",//16
+        "- Unused",//17
+        "Customer remote interlock",//18
+        "Pump Overload",//19
+        "Pumping Chamber 1 Water Flow low", //20
+        "P/Chamber 2 Water Flow low (Not MW500)", //21
+        "P/Chamber 3 Water Flow low (MW2000 only)",//22
+        "P/Chamber 4 Water Flow low (MW2000 only)",//23
+        "Beam Dump Water Flow Low",//24
+        "Interlock Not Determined",//25
+        "Power Trip (Hi) Activated",//26
+        "Power Trip (Lo) Activated",//27
+        "Lamp Life Trip Activated",//28
+        "DC Bus Voltage Low or Remote Emergency-stop"
     };//29
-    
+
     int index = -1;
     try {
         index = boost::lexical_cast<int>(response);

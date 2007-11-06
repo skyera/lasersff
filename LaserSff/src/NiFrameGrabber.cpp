@@ -28,8 +28,8 @@ bool NiFrameGrabber::AcquireImage()
 void NiFrameGrabber::DisplayImage(HWND hwnd)
 {
     imgPlot((GUIHNDL)hwnd, m_ImaqBuffer, 
-            0, 0, m_AcqWinWidth, m_AcqWinHeight,
-			0, 0, m_plotFlag);
+        0, 0, m_AcqWinWidth, m_AcqWinHeight,
+        0, 0, m_plotFlag);
 }
 
 void NiFrameGrabber::SaveImage(const string& filename)
@@ -66,26 +66,26 @@ bool NiFrameGrabber::Init()
     }
     switch(m_bitsPerPixel) {
     case 10:
-		m_plotFlag = IMGPLOT_MONO_10;
-		break;
-	case 12:
-		m_plotFlag = IMGPLOT_MONO_12;
-		break;
-	case 14:
-		m_plotFlag = IMGPLOT_MONO_14;
-		break;
-	case 16:
-		m_plotFlag = IMGPLOT_MONO_16;
-		break;
-	case 24:
-	case 32:
-		// assumes that a 24 bits camera is a color camera.
-		// in this mode, even if the camera is 24 bits the board returns 32 bits values
-		m_plotFlag = IMGPLOT_COLOR_RGB32;
-		break;
-	default:
-		m_plotFlag = IMGPLOT_MONO_8;
-		break;
+        m_plotFlag = IMGPLOT_MONO_10;
+        break;
+    case 12:
+        m_plotFlag = IMGPLOT_MONO_12;
+        break;
+    case 14:
+        m_plotFlag = IMGPLOT_MONO_14;
+        break;
+    case 16:
+        m_plotFlag = IMGPLOT_MONO_16;
+        break;
+    case 24:
+    case 32:
+        // assumes that a 24 bits camera is a color camera.
+        // in this mode, even if the camera is 24 bits the board returns 32 bits values
+        m_plotFlag = IMGPLOT_COLOR_RGB32;
+        break;
+    default:
+        m_plotFlag = IMGPLOT_MONO_8;
+        break;
     }
 
     st = imgGrabSetup(m_Sid, TRUE);
