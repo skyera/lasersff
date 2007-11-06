@@ -7,7 +7,7 @@
 using namespace rcam;
 using namespace std;
 
-const int N = 2;
+const int N = 1;
 YagLaser::YagLaser(): m_connected(false)
 {
 
@@ -263,6 +263,7 @@ string YagLaser::GetEPCStatus()
 
 string YagLaser::ReadResponse()
 {
+    ::wxUsleep(10);
     string response;
     int len = m_serialPortPtr->Read(response);
 
