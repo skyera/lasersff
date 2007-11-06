@@ -29,7 +29,6 @@ bool MultiFabController::Init(int port)
     // laser
     bool ok1 = InitLaser(port);
     if(!ok1) {
-        wxMessageBox("cannot initialize laser", "error", wxOK|wxICON_WARNING);   
         wxLogWarning("cannot init laser");
     }
     
@@ -145,7 +144,7 @@ bool MultiFabController::StartGrabImage(wxWindow* displayWindow,
 
     bool ok = m_frameGrabber->Init();
     if(!ok) {
-        //return false;
+        return false;
     } 
 
     // thread

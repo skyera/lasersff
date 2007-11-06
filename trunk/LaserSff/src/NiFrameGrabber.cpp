@@ -90,6 +90,7 @@ bool NiFrameGrabber::Init()
 
     st = imgGrabSetup(m_Sid, TRUE);
     if(st < 0) {
+        DisplayImgError(st);
         return false;
     }
     return true;
