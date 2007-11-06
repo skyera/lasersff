@@ -63,7 +63,6 @@ MainFrame::MainFrame(const wxString &title):wxFrame(NULL, wxID_ANY, title)//,
     wxString path = config->Read(Parameters::ImagePath, "c:\\");
     m_imagePathText->SetLabel(path);
 
-
     int power = config->Read(Parameters::PowerPercent, 51);
     m_powerSpinCtrl->SetValue(power);
 	GetSizer()->Fit(this);
@@ -80,8 +79,10 @@ MainFrame::MainFrame(const wxString &title):wxFrame(NULL, wxID_ANY, title)//,
 void MainFrame::FormToolBar()
 {
     m_toolbar = CreateToolBar();
-	wxBitmap bmp = wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_TOOLBAR);
+	wxBitmap bmp = wxArtProvider::GetBitmap(wxART_HARDDISK, wxART_TOOLBAR);
     m_toolbar->AddTool(ID_CONNECT, "Connect", bmp, "Connect");
+    bmp = wxArtProvider::GetBitmap(wxART_INFORMATION, wxART_TOOLBAR);
+    m_toolbar->AddTool(ID_About, "About", bmp, "About");
     m_toolbar->Realize();
 
 }
@@ -285,7 +286,7 @@ void MainFrame::CreateLaserOperationControls(wxBoxSizer *topsizer, wxPanel *pane
         s->Add(m_epcButton, wxSizerFlags(1).Left().Border(wxALL, 5).Expand());
         // check laser
         m_checkLaserButton = new wxButton(panel, ID_CHECKLASER, "Check Laser");
-        m_checkLaserButton->SetToolTip("retrieve laset status information");
+        //m_checkLaserButton->SetToolTip("retrieve laset status information");
         s->Add(m_checkLaserButton, wxSizerFlags(1).Align(wxALIGN_LEFT).Border(wxALL, 5).Expand());
     }
 
@@ -331,13 +332,13 @@ void MainFrame::CreateRunControls(wxPanel *parent)
     sizer->AddStretchSpacer(1);
     // stop
     m_estopButton = new wxBitmapButton(p, ID_ESTOP, m_stopBitmap);
-    m_estopButton->SetToolTip("Emergency stop: turn off laser");
+    //m_estopButton->SetToolTip("Emergency stop: turn off laser");
     sizer->Add(m_estopButton, wxSizerFlags().Border(wxALL, 10));
     
     sizer->AddStretchSpacer(1);
     // run
     m_runButton = new wxBitmapButton(p, ID_RUN, m_runBitmap);
-    m_runButton->SetToolTip("start laser 3D cladding");
+    //m_runButton->SetToolTip("start laser 3D cladding");
     sizer->Add(m_runButton, wxSizerFlags().Border(wxALL, 10));
     sizer->AddStretchSpacer(1);
     

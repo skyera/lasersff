@@ -21,7 +21,7 @@ MultiFabController::MultiFabController():m_estop(false)
 
 MultiFabController::~MultiFabController()
 {
-
+    
 }
 
 bool MultiFabController::Init(int port)
@@ -226,4 +226,11 @@ string MultiFabController::CreateDirectory(const string& rootpath)
   //      throw "cannot create directory";
     }
     return path.c_str();
+}
+
+void MultiFabController::Close()
+{
+    if(m_init) {
+        
+    }
 }

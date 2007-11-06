@@ -17,7 +17,6 @@ public:
     virtual bool Init(int port) = 0;
     virtual bool Disconnect() = 0;
     virtual bool MonitorLaser() = 0;
-
     virtual bool EmergencyStop() = 0;
 
     bool IsInited();
