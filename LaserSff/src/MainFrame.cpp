@@ -72,7 +72,7 @@ MainFrame::MainFrame(const wxString &title):wxFrame(NULL, wxID_ANY, title)//,
     m_controller = ControllerFactory::CreateController(name);
     
     int port = config->Read(Parameters::SerialPort, 3); 
-    m_controller->Init(port);
+    bool inited = m_controller->Init(port);
     m_laser = m_controller->GetLaser();
 }
 
