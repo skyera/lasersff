@@ -31,8 +31,10 @@ BEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_BUTTON(ID_SINGLESHOT, MainFrame::OnSingleShot)
     EVT_BUTTON(ID_ESTOP, MainFrame::OnEStop)
     EVT_BUTTON(ID_SETPOWER, MainFrame::OnSetPower)
+    
     EVT_UPDATE_UI(ID_DISCONNECT, MainFrame::OnUpdateDisConnect)
     EVT_UPDATE_UI(ID_CONNECT, MainFrame::OnUpdateConnect)
+
 
     EVT_BUTTON(ID_LASERON, MainFrame::OnLaserOn)
     EVT_BUTTON(ID_LASEROFF, MainFrame::OnLaserOff)
@@ -41,6 +43,7 @@ BEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_CHECKBOX(ID_DISPLAY_IMAGE_CHECK, MainFrame::OnCheckDisplayImage)
     EVT_BUTTON(ID_IMAGE_PATH, MainFrame::OnChooseImagePath)
     EVT_CLOSE(MainFrame::OnClose)
+    EVT_BUTTON(ID_EPC,MainFrame::OnEpc)
 END_EVENT_TABLE()
 
 MainFrame::MainFrame(const wxString &title):wxFrame(NULL, wxID_ANY, title)//, 
@@ -54,15 +57,7 @@ MainFrame::MainFrame(const wxString &title):wxFrame(NULL, wxID_ANY, title)//,
     CreateControls();
     CreateStatusBar(2);
     SetStatusText(_T("LAser!"));
-    //SetSize(wxSize(700,650));
-    
-    if(!InitSystem()) {
-        ConnectToCom();        
-    } 
-    
-    m_laser = m_controller->GetLaser();
-    
-    //SetMinSize(wxSize(700, 720));
+
     m_timer.SetOwner(this, ID_TIMER);
     boost::scoped_ptr<wxConfig> config(new wxConfig(Parameters::AppName));
     wxString path = config->Read(Parameters::ImagePath, "c:\\");
@@ -74,6 +69,12 @@ MainFrame::MainFrame(const wxString &title):wxFrame(NULL, wxID_ANY, title)//,
 	GetSizer()->Fit(this);
 	GetSizer()->SetSizeHints(this);
 	Centre();
+    wxString name("MultiFab");
+    m_controller = ControllerFactory::CreateController(name);
+    
+    int port = config->Read(Parameters::SerialPort, 3); 
+    m_controller->Init(port);
+    m_laser = m_controller->GetLaser();
 }
 
 void MainFrame::FormToolBar()
@@ -83,18 +84,6 @@ void MainFrame::FormToolBar()
     m_toolbar->AddTool(ID_CONNECT, "Connect", bmp, "Connect");
     m_toolbar->Realize();
 
-}
-
-bool MainFrame::InitSystem()
-{
-    wxString name("MultiFab");
-    m_controller = ControllerFactory::CreateController(name);
-    
-    boost::scoped_ptr<wxConfig> config(new wxConfig(Parameters::AppName));
-    int port;
-    port = config->Read(Parameters::SerialPort, 1);
-    
-    return m_controller->Init(port);
 }
 
 void MainFrame::CreateMenu()
@@ -189,27 +178,20 @@ void MainFrame::CreateControls()
     m_poniBitmap = wxBITMAP(ID_BITMAP_PONI);
     m_rcamBitmap = wxBITMAP(ID_BITMAP_RCAM);
 
-    wxPanel *p = new wxPanel(this, -1);
-	wxBoxSizer *mains = new wxBoxSizer(wxVERTICAL);
-	SetSizer(mains);
-	mains->Add(p, wxSizerFlags(1).Expand());
+    
+	wxBoxSizer *mainsizer = new wxBoxSizer(wxVERTICAL);
+	SetSizer(mainsizer);
+    wxPanel *panel = new wxPanel(this, -1);
+	mainsizer->Add(panel, wxSizerFlags(1).Expand());
 	
-    //s->Add(p, wxSizerFlags().Align(wxALIGN_CENTER).Expand());
-
-    wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL);
-    p->SetSizer(sizer);
-//    SetSizer(sizer);
-//    m_logoPanel = new wxPanel(this, -1, wxDefaultPosition, wxDefaultSize, wxBORDER_RAISED);
-
-//    m_logoPanel->SetSize(m_logoBitmap.GetWidth() + 2, m_logoBitmap.GetHeight() + 2);
-//    sizer->Add(m_logoPanel, wxSizerFlags().Align(wxALIGN_CENTER).Border(wxALL, 5));
+    wxBoxSizer *sizer_p = new wxBoxSizer(wxVERTICAL);
+    panel->SetSizer(sizer_p);
 
     wxBoxSizer *h_sizer = new wxBoxSizer(wxHORIZONTAL);
-    sizer->Add(h_sizer, wxSizerFlags(1).Expand());
+    sizer_p->Add(h_sizer, wxSizerFlags(1).Expand());
     
-
-    wxPanel *left = CreateLeftPanel(p);
-    wxPanel *right = CreateRightPanel(p);
+    wxPanel *left = CreateLeftPanel(panel);
+    wxPanel *right = CreateRightPanel(panel);
     h_sizer->Add(left, wxSizerFlags(1).Expand().Border(wxALL, 5));
     h_sizer->Add(right, wxSizerFlags().Expand().Border(wxALL, 5));
 }
@@ -224,11 +206,7 @@ wxPanel* MainFrame::CreateLeftPanel(wxPanel* parent)
     CreateRunControls(panel);
     CreateLaserOperationControls(topsizer, panel);
 
-//    wxTextCtrl *logwin = new wxTextCtrl(parent, -1, "", wxDefaultPosition, wxSize(100, 100), wxTE_MULTILINE);
-//    topsizer->Add(logwin, wxSizerFlags(0).Border(wxALL, 5).Expand());
-//    wxLog::SetActiveTarget(new wxLogTextCtrl(logwin));
     return panel;
-    
 }
 
 void MainFrame::CreateLaserStatusControls(wxBoxSizer *topsizer, wxPanel* panel)
@@ -302,7 +280,10 @@ void MainFrame::CreateLaserOperationControls(wxBoxSizer *topsizer, wxPanel *pane
         m_setPowerButton = new wxButton(panel, ID_SETPOWER, "Set Power");
         s->Add(m_setPowerButton, wxSizerFlags(1).Align(wxALIGN_LEFT).Border(wxALL, 5).Expand());
         
-        s->AddStretchSpacer(1);
+        //s->AddStretchSpacer(1);
+
+        m_epcButton = new wxButton(panel, ID_EPC, "Set EPC");
+        s->Add(m_epcButton, wxSizerFlags(1).Left().Border(wxALL, 5).Expand());
         // check laser
         m_checkLaserButton = new wxButton(panel, ID_CHECKLASER, "Check Laser");
         m_checkLaserButton->SetToolTip("retrieve laset status information");
@@ -366,15 +347,15 @@ void MainFrame::CreateRunControls(wxPanel *parent)
         parent->GetSizer()->Add(box, wxSizerFlags().Expand().Border(wxALL, 5).Center());
         
         box->Add(new wxStaticText(parent, -1, "Time(secs)"), 
-                wxSizerFlags().Border(wxALL, 5));
-        m_processTimeText = new wxTextCtrl(parent, -1, "1000");
+                wxSizerFlags().Border(wxALL, 5).Left());
+        m_processTimeText = new wxTextCtrl(parent, -1, "0");
         
-        box->Add(m_processTimeText, wxSizerFlags().Border(wxALL, 5));
-
+        box->Add(m_processTimeText, wxSizerFlags(1).Border(wxALL, 5).Left());
+        box->AddStretchSpacer(1);
         box->Add(new wxStaticText(parent, -1, "Status"), 
-                 wxSizerFlags().Border(wxALL, 5));
+                 wxSizerFlags().Border(wxALL, 5).Right());
         m_processStatusText = new wxTextCtrl(parent, ID_PROCESS_STATUS, "Not started");
-        box->Add(m_processStatusText, wxSizerFlags().Expand().Border(wxALL, 5));
+        box->Add(m_processStatusText, wxSizerFlags(1).Expand().Border(wxALL, 5).Left());
     }
 }
 
@@ -645,4 +626,9 @@ void MainFrame::OnChooseImagePath(wxCommandEvent& event)
         boost::scoped_ptr<wxConfig> config(new wxConfig(Parameters::AppName));
         config->Write(Parameters::ImagePath, path);
     }
+}
+
+void MainFrame::OnEpc(wxCommandEvent &event)
+{
+    m_laser->SetEPCOn();
 }

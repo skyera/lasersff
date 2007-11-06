@@ -38,9 +38,9 @@ public:
     void OnClose(wxCloseEvent& event);
     void OnCheckDisplayImage(wxCommandEvent& event);
     void OnChooseImagePath(wxCommandEvent& event);
+    void OnEpc(wxCommandEvent& event);
 private:
     void CreateMenu();
-    bool InitSystem();
     void CreateControls();
     wxPanel* CreateLeftPanel(wxPanel* parent);
     wxPanel* CreateRightPanel(wxPanel* panel);
@@ -96,6 +96,7 @@ private:
     wxSlider *m_thresholdSlider;
     wxTextCtrl *m_maxNumImageText;
     wxTextCtrl *m_numSavedImageText;
+    wxButton *m_epcButton;
 
     wxTimer m_timer;
     int m_processTime;
@@ -120,6 +121,7 @@ private:
         ID_DISPLAY_IMAGE_CHECK,
         ID_IMAGE_PATH,
         ID_PROCESS_STATUS,
+        ID_EPC,
         ID_About = wxID_ABOUT
     };
     DECLARE_EVENT_TABLE()
