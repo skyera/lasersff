@@ -116,9 +116,8 @@ void MainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 {
     wxMessageBox(wxString::Format(
                     _T("Rcam Laser Cladding Application\n")
-                    _T("Author: Zhigang Liu\n")
-                    _T("Email : zgliu@hotmail.com\n")
-                    _T("Date  : Oct 2007")
+                    _T("Zhigang Liu\n")
+                    _T("Oct 2007")
                     
                  ),
                  _T("About SFF"),
@@ -542,6 +541,7 @@ void MainFrame::UpdateUI(bool enable)
     m_laserOnButton->Enable(enable);
     m_laserOffButton->Enable(enable);
     m_laserStandbyButton->Enable(enable);
+    m_epcButton->Enable(enable);
 }
 
 void MainFrame::OnUpdateDisConnect(wxUpdateUIEvent& event)
