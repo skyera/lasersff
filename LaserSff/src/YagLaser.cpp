@@ -7,7 +7,7 @@
 using namespace rcam;
 using namespace std;
 
-
+const int N = 2;
 YagLaser::YagLaser(): m_connected(false)
 {
 
@@ -15,7 +15,8 @@ YagLaser::YagLaser(): m_connected(false)
 
 YagLaser::~YagLaser()
 {
-
+    this->CloseShutter();
+    this->SetLaserOff();
 }
 
 bool YagLaser::Connect(int port)
@@ -47,7 +48,7 @@ bool YagLaser::Disconnect()
 
 bool YagLaser::OpenShutter()
 {
-    for(int i = 0; i < 3; i++) {
+    for(int i = 0; i < N; i++) {
         string cmd("C1\r");
         Write(cmd);
         ReadResponse();
@@ -57,7 +58,7 @@ bool YagLaser::OpenShutter()
 
 bool YagLaser::CloseShutter()
 {
-    for(int i = 0; i < 3; i++) {
+    for(int i = 0; i < N; i++) {
         string cmd("C0\r");
         Write(cmd);
         ReadResponse();
@@ -96,7 +97,7 @@ string YagLaser::GetLaserStatus()
         return "not connected";
     }
     string st;
-    for(int i = 0; i < 3; i++) {
+    for(int i = 0; i < N; i++) {
         string cmd("O1\r");
 
         Write(cmd);
@@ -121,7 +122,7 @@ string YagLaser::GetLaserStatus()
 string YagLaser::GetShutterStatus()
 {
     string st;
-    for(int i = 0; i < 3; i++) {
+    for(int i = 0; i < N; i++) {
         string cmd("O2\r");
 
         Write(cmd);
@@ -141,7 +142,7 @@ string YagLaser::GetPowerPercent()
 {
     string response;
     int power;
-    for(int i = 0; i < 3; i++) {
+    for(int i = 0; i < N; i++) {
         string cmd("OA\r");
         Write(cmd);
         response = ReadResponse();
@@ -162,7 +163,7 @@ string YagLaser::GetPowerWatt()
 {
     string response;
 
-    for(int i = 0; i < 3; i++) {
+    for(int i = 0; i < N; i++) {
         string cmd("O3\r");
         Write(cmd);
         response = ReadResponse();

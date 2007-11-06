@@ -32,6 +32,7 @@ public:
                                 wxTextCtrl *numSavedImage);
     virtual bool StopGrabImage();
     void DoAcquireImage();
+    void Close();
 private:
 
     bool InitLaser(int port);
