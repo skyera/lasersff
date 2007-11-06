@@ -525,7 +525,6 @@ void MainFrame::OnEStop(wxCommandEvent& event)
     m_controller->EmergencyStop();
     m_laser->CloseShutter();
     m_laser->SetLaserOff();
-    wxLogMessage("Emergency stop!");
 }
 
 void MainFrame::UpdateUI(bool enable)
@@ -558,6 +557,9 @@ void MainFrame::OnSetPower(wxCommandEvent& event)
     int power = m_powerSpinCtrl->GetValue();        
     if(power > 0 && power <= 100) {
         m_laser->SetPower(power);
+        
+        boost::shared_ptr<wxConfig> config(new wxConfig(Parameters::AppName));
+        config->Write(Parameters::PowerPercent, power);
     } else {
         ::wxMessageBox("Power range (1-100)", "error");
     }
