@@ -111,7 +111,6 @@ bool MultiFabController::MonitorLaser()
     }
     m_laserPtr->CloseShutter();
     m_laserPtr->SetLaserStandby();
-    ::wxSleep(5);
     return true;
 }
 
