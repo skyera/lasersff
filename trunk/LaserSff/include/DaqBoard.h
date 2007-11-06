@@ -3,7 +3,7 @@
 
 namespace rcam {
 
-enum {SHUTTER_OPEN, SHUTTER_CLOSE, FINISHED, NOT_FINISHED};
+enum {SHUTTER_OPEN = 0, SHUTTER_CLOSE = 1, FINISHED = 0, NOT_FINISHED = 1};
 
 class DaqBoard {
 public:

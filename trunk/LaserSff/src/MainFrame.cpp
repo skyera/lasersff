@@ -459,7 +459,6 @@ wxPanel* MainFrame::CreateRightPanel(wxPanel *parent)
 void MainFrame::MonitorLaser()
 {
     m_runButton->Disable();
-    
  
     m_controller->MonitorLaser();
     m_timer.Stop();
