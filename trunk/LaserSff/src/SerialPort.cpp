@@ -5,51 +5,51 @@ using namespace std;
 
 SerialPort::SerialPort()
 {
-	m_opened = false;
+    m_opened = false;
 }
 
 SerialPort::~SerialPort()
 {
-	Close();
+    Close();
 }
 
 bool SerialPort::Open(const string& port, int baud)
 {
-	if(m_opened) {
-		return true;
-	}	
-	m_hcom = CreateFile(port.c_str(), GENERIC_READ|GENERIC_WRITE, 0, NULL,
-						OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	if(m_hcom == INVALID_HANDLE_VALUE) {
-		return false;
-	}
-	
+    if(m_opened) {
+        return true;
+    }	
+    m_hcom = CreateFile(port.c_str(), GENERIC_READ|GENERIC_WRITE, 0, NULL,
+        OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if(m_hcom == INVALID_HANDLE_VALUE) {
+        return false;
+    }
+
     COMMTIMEOUTS TimeOuts;
 
-	GetCommTimeouts(m_hcom, &TimeOuts);
+    GetCommTimeouts(m_hcom, &TimeOuts);
 
-	TimeOuts.ReadIntervalTimeout = 15;
-	TimeOuts.ReadTotalTimeoutMultiplier = 0;
-	TimeOuts.ReadTotalTimeoutConstant = 1000;
+    TimeOuts.ReadIntervalTimeout = 15;
+    TimeOuts.ReadTotalTimeoutMultiplier = 0;
+    TimeOuts.ReadTotalTimeoutConstant = 1000;
 
-	// Set write timeout to set the GetOverlappedResult's waiting time
-	TimeOuts.WriteTotalTimeoutMultiplier = 0;
-	TimeOuts.WriteTotalTimeoutConstant = 1000;
-	SetCommTimeouts(m_hcom, &TimeOuts);
+    // Set write timeout to set the GetOverlappedResult's waiting time
+    TimeOuts.WriteTotalTimeoutMultiplier = 0;
+    TimeOuts.WriteTotalTimeoutConstant = 1000;
+    SetCommTimeouts(m_hcom, &TimeOuts);
 
-	// Set buffer for in, out
-	SetupComm(m_hcom, 1024, 1024);
-	SetCommMask(m_hcom, EV_RXCHAR);
+    // Set buffer for in, out
+    SetupComm(m_hcom, 1024, 1024);
+    SetCommMask(m_hcom, EV_RXCHAR);
 
-	// Set com state
-	DCB dcb;
-	GetCommState(m_hcom, &dcb);
-	dcb.BaudRate = 4800;
-	dcb.ByteSize = 8;
-	dcb.Parity = NOPARITY;
-	dcb.StopBits = ONESTOPBIT;
-	SetCommState(m_hcom, &dcb);
-    
+    // Set com state
+    DCB dcb;
+    GetCommState(m_hcom, &dcb);
+    dcb.BaudRate = 4800;
+    dcb.ByteSize = 8;
+    dcb.Parity = NOPARITY;
+    dcb.StopBits = ONESTOPBIT;
+    SetCommState(m_hcom, &dcb);
+
     m_opened = true;
     return true;
 }
@@ -89,15 +89,13 @@ int SerialPort::Read(std::string &str)
     DWORD length = 200;
     ReadFile(m_hcom, buf, length, &length, NULL);
     if(length == 0) {
-		buf[0] = 0;
-    }
-    else if(buf[length - 1] == 'F') {
-		buf[length-1] = 0;
-    }
-    else {
-		buf[length] = 0;
+        buf[0] = 0;
+    } else if(buf[length - 1] == 'F') {
+        buf[length-1] = 0;
+    } else {
+        buf[length] = 0;
     }
 
     str = buf;
-	return length;
+    return length;
 }

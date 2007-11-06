@@ -23,7 +23,7 @@ bool PCI1200::Init()
         HandleError(st);
         return false;
     }
-    
+
     st = DIG_Prt_Config(m_device, 2, 0, 1);
     if(st != 0) {
         HandleError(st);
@@ -34,14 +34,14 @@ bool PCI1200::Init()
     st = DIG_Prt_Config(m_device, 1, 0, 1);
     st = DIG_Out_Line(m_device, 1, 0, 0);
     st = DIG_Out_Line(m_device, 1, 1, 0);
-  
+
 #endif
     return true;
 }
 
 PCI1200::~PCI1200()
 {
-  
+
 }
 
 int PCI1200::ReadPort(i16 port)
@@ -52,22 +52,22 @@ int PCI1200::ReadPort(i16 port)
     const double THRESHOLD = 0.4;
 
     double sum = 0;
-    
+
 
     for(int i = 0; i < N; i++) {
         DIG_In_Line(m_device, 0, port, &line);
         sum += line;
     }
-    
+
     sum = sum / N;
-    
+
     if(sum < THRESHOLD) {
         line = 0;
     } else {
         line = 1;
     }
-    
-    
+
+
 #endif
     return line;
 }
@@ -90,7 +90,7 @@ bool PCI1200::SetLaserPower(int percent)
 #else
     return true;
 #endif
-    
+
 }
 
 void PCI1200::HandleError(i16 code)

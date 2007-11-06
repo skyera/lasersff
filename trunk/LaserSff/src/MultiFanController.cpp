@@ -21,7 +21,7 @@ MultiFabController::MultiFabController():m_estop(false)
 
 MultiFabController::~MultiFabController()
 {
-    
+
 }
 
 bool MultiFabController::Init(int port)
@@ -31,18 +31,18 @@ bool MultiFabController::Init(int port)
     if(!ok1) {
         wxLogWarning("cannot init laser");
     }
-    
+
     bool ok2 = InitDaqboard();
     if(!ok2) {
         wxMessageBox("cannot initialize DaqBoard", "error", wxOK|wxICON_WARNING);     
-        
+
     }
 
     bool ok3 = InitFrameGrabber();
     if(!ok3) {
         wxMessageBox("cannot initialize frame grabber", "error", wxOK|wxICON_WARNING);     
     }
-    
+
     m_init = ok1 && ok2 && ok3;
     m_laserPtr->SetDaqboard(m_daqboard);
 
@@ -59,7 +59,7 @@ bool MultiFabController::InitLaser(int port)
         //wxMessageBox(msg, "Error", wxOK|wxICON_ERROR);
         return false;
     } else {
-  //      m_laserPtr->SetEPCOn();
+        //      m_laserPtr->SetEPCOn();
         // write it to config file
         boost::scoped_ptr<wxConfig> config(new wxConfig(Parameters::AppName));
         config->Write(Parameters::SerialPort, port);
@@ -80,7 +80,7 @@ bool MultiFabController::Disconnect()
     if(m_laserPtr.get()) {
         m_laserPtr->Disconnect();
     }
-    
+
     m_init = false;
     return true;
 }
@@ -91,12 +91,12 @@ bool MultiFabController::MonitorLaser()
     int prevfinish = NOT_FINISHED;
     int shutter = SHUTTER_CLOSE;
     int finish = NOT_FINISHED;
-    
+
     m_estop = false;
     while(!m_estop && (finish == NOT_FINISHED)) {
         finish = m_daqboard->ReadFinishSignal();
         shutter = m_daqboard->ReadShutterSignal();
-        
+
         // shutter
         if(prevshutter == SHUTTER_CLOSE  && shutter == SHUTTER_OPEN) {
             m_laserPtr->OpenShutter();
@@ -173,7 +173,7 @@ void MultiFabController::DoAcquireImage()
 
     while(m_acquireImage) {
         m_frameGrabber->AcquireImage();
-        
+
         // save
         if(m_saveImageCheckBox->GetValue() && count < max) {
             wxString filename;
@@ -185,13 +185,13 @@ void MultiFabController::DoAcquireImage()
             m_numSavedImageText->SetLabel(numstr);
             count++;
         }
-        
+
         // binary
         if(m_binaryImageCheckBox->GetValue()) {
             int threshold = m_thresholdSlider->GetValue();
             m_frameGrabber->BinaryImage(threshold);
         } 
-        
+
         m_frameGrabber->DisplayImage(hwnd);
     }
     m_frameGrabber->Close();
@@ -216,13 +216,13 @@ string MultiFabController::CreateDirectory(const string& rootpath)
     int hour = now.GetHour();
     int min = now.GetMinute();
     int sec = now.GetSecond();
-    
+
     wxString path;
     path << year << "-" << month << "-" << day << "-" << hour << "-" << min << "-" << sec;
     path = wxString(rootpath.c_str()) + "\\" + path;
     bool ok = ::wxMkDir(path);
     if(!ok) {
-  //      throw "cannot create directory";
+        //      throw "cannot create directory";
     }
     return path.c_str();
 }
@@ -230,6 +230,6 @@ string MultiFabController::CreateDirectory(const string& rootpath)
 void MultiFabController::Close()
 {
     if(m_init) {
-        
+
     }
 }
