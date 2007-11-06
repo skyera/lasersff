@@ -12,6 +12,7 @@
 #include "DeviceCheckDialog.h"
 #include <wx/log.h>
 #include <wx/artprov.h>
+#include <wx/busyinfo.h>
 
 
 using namespace rcam;
@@ -476,7 +477,7 @@ void MainFrame::OnCheckLaser(wxCommandEvent& event)
         wxMessageBox("Init system first", "Error");
         return;
     }    
-
+    wxBusyInfo info("checking laset status", this);
     string laser = m_laser->GetLaserStatus();
     m_laserStatusText->SetLabel(laser.c_str());
     if(laser == "On") {
@@ -604,6 +605,7 @@ void MainFrame::OnClose(wxCloseEvent &event)
 void MainFrame::OnCheckDisplayImage(wxCommandEvent& event)
 {
     if(m_displayImageCheck->GetValue()) {
+        wxBusyInfo info("setup frame grabber, please wait", this);
         bool ok = m_controller->StartGrabImage(m_poolPanel, 
                                                m_binaryImageCheck,
                                                m_thresholdSlider,
