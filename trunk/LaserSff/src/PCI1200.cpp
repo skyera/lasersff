@@ -66,15 +66,13 @@ int PCI1200::ReadPort(i16 port)
     } else {
         line = 1;
     }
-
-
 #endif
     return line;
 }
 
 int PCI1200::ReadFinishSignal()
 {
-    return ReadPort(1);        
+    return ReadPort(3);        
 }
 
 int PCI1200::ReadShutterSignal()

@@ -14,5 +14,5 @@ void* LaserThread::Entry()
 
 void LaserThread::OnExit()
 {
-    ::wxMessageBox("Done", "laser");
+    ::wxMessageBox("Process us finsihed", "laser");
 }

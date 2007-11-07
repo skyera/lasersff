@@ -34,6 +34,7 @@ public:
     virtual std::string GetInterlockStatus() = 0;
     virtual bool SetEPCOn() = 0;
     virtual void SetDaqboard(const boost::shared_ptr<DaqBoard>& board) = 0;
+    virtual bool IsShutterOpen() = 0;
 
 };
 

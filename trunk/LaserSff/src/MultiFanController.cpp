@@ -29,7 +29,9 @@ bool MultiFabController::Init(int port)
     // laser
     bool ok1 = InitLaser(port);
     if(!ok1) {
-        wxLogWarning("cannot init laser");
+        wxString msg;
+        msg << "cannot open serial port " << port << " for laser";
+        wxLogWarning(msg);
     }
 
     bool ok2 = InitDaqboard();
