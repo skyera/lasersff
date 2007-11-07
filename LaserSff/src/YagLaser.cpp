@@ -10,7 +10,7 @@ using namespace std;
 const int N = 1;
 YagLaser::YagLaser(): m_connected(false)
 {
-
+    m_shutterStatus = false;
 }
 
 YagLaser::~YagLaser()
@@ -29,8 +29,8 @@ bool YagLaser::Connect(int port)
     stringstream ss;
     ss << "COM" << port;
 
-    int ok = m_serialPortPtr->Open(ss.str().c_str(), 4800);
-    if(ok < 0) {
+    bool ok = m_serialPortPtr->Open(ss.str().c_str(), 4800);
+    if(!ok) {
         return false;
     }
     m_connected = true;
@@ -53,6 +53,7 @@ bool YagLaser::OpenShutter()
         Write(cmd);
         ReadResponse();
     }
+    m_shutterStatus = true;
     return true;
 }
 
@@ -63,6 +64,7 @@ bool YagLaser::CloseShutter()
         Write(cmd);
         ReadResponse();
     }
+    m_shutterStatus = false;
     return true;
 }
 
@@ -331,4 +333,9 @@ string YagLaser::GetInterlockStatus()
 void YagLaser::SetDaqboard(const boost::shared_ptr<DaqBoard>& board)
 {
     m_daqboard = board;
+}
+
+bool YagLaser::IsShutterOpen()
+{
+    return m_shutterStatus;   
 }

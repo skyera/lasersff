@@ -1,5 +1,6 @@
 #include "ConnectDialog.h"
 #include <wx/statline.h>
+#include <wx/choice.h>
 
 BEGIN_EVENT_TABLE(ConnectDialog, wxDialog)
     EVT_BUTTON(wxID_OK, ConnectDialog::OnOK)

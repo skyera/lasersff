@@ -13,6 +13,7 @@
 #include <wx/log.h>
 #include <wx/artprov.h>
 #include <wx/busyinfo.h>
+#include <wx/toolbar.h>
 
 
 using namespace rcam;
@@ -35,7 +36,8 @@ EVT_BUTTON(ID_SETPOWER, MainFrame::OnSetPower)
 
 EVT_UPDATE_UI(ID_DISCONNECT, MainFrame::OnUpdateDisConnect)
 EVT_UPDATE_UI(ID_CONNECT, MainFrame::OnUpdateConnect)
-
+//EVT_UPDATE_UI(ID_LASER_STATUS, MainFrame::OnUpdateLaserStatus)
+//EVT_UPDATE_UI(ID_SHUTTER_STATUS, MainFrame::OnUpdateShutterStatus)
 
 EVT_BUTTON(ID_LASERON, MainFrame::OnLaserOn)
 EVT_BUTTON(ID_LASEROFF, MainFrame::OnLaserOff)
@@ -75,15 +77,30 @@ MainFrame::MainFrame(const wxString &title):wxFrame(NULL, wxID_ANY, title)//,
     int port = config->Read(Parameters::SerialPort, 3); 
     bool inited = m_controller->Init(port);
     m_laser = m_controller->GetLaser();
+    wxString info;
+    if(inited) {
+        info << "laser is connected to serial port " << port;
+    } else {
+        info << "laser failed to connect to serial port " << port;
+    }
+    SetStatusText(info);
 }
 
 void MainFrame::FormToolBar()
 {
-    m_toolbar = CreateToolBar();
-    wxBitmap bmp = wxArtProvider::GetBitmap(wxART_HARDDISK, wxART_TOOLBAR);
-    m_toolbar->AddTool(ID_CONNECT, "Connect", bmp, "Connect");
-    bmp = wxArtProvider::GetBitmap(wxART_INFORMATION, wxART_TOOLBAR);
-    m_toolbar->AddTool(ID_About, "About", bmp, "About");
+    long style = wxTB_FLAT |wxTB_DOCKABLE|wxTB_TEXT|wxTB_TOP;//|wxTB_HORZ_LAYOUT;
+    
+    m_toolbar = CreateToolBar(style);
+    
+    wxBitmap bmp1 = wxArtProvider::GetBitmap(wxART_HARDDISK, wxART_TOOLBAR);
+    wxBitmap bmp2 = wxArtProvider::GetBitmap(wxART_CDROM, wxART_TOOLBAR);
+    wxBitmap bmp3 = wxArtProvider::GetBitmap(wxART_FLOPPY, wxART_TOOLBAR);
+    
+    GetToolBar()->SetToolBitmapSize(wxSize(bmp2.GetWidth(), bmp2.GetHeight()));
+    
+    m_toolbar->AddTool(ID_CONNECT, "Connect", bmp1, wxNullBitmap, wxITEM_NORMAL, "Connect", "Connect to serial port");
+    m_toolbar->AddTool(ID_DISCONNECT, "Disconnect", bmp2, wxNullBitmap, wxITEM_NORMAL, "Disconnect", "Disconnect to serial port");
+    m_toolbar->AddTool(ID_About, "About", bmp3, wxNullBitmap, wxITEM_NORMAL, "About", "help inforation");
     m_toolbar->Realize();
 
 }
@@ -147,16 +164,13 @@ void MainFrame::ConnectToCom()
         bool flag;
 
         if(m_controller->Init(port)) {
-            status = "Inited system successfully";
+            status << "Laser is connectedt to serial port " << port;
             m_laser = m_controller->GetLaser();
             flag = true;
 
         } else {
-            wxString msg("Failed to connect to port");
-            msg << port;
-            wxMessageBox(msg, "connection", wxICON_ERROR);
             flag = false;
-            status = "Failed to init system";
+            status << "Laser failed to connect to serial port " << port;
         }
         SetStatusText(status);
         UpdateUI(flag);
@@ -224,12 +238,12 @@ void MainFrame::CreateLaserStatusControls(wxBoxSizer *topsizer, wxPanel* panel)
 
     // laser status
     gridsizer->Add(new wxStaticText(panel, -1, "Laser"), wxSizerFlags().Align(wxALIGN_LEFT));
-    m_laserStatusText = new wxTextCtrl(panel, -1, "", wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    m_laserStatusText = new wxTextCtrl(panel, ID_LASER_STATUS, "", wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
     m_laserStatusText->SetToolTip("last status: On,Off or standby");
     gridsizer->Add(m_laserStatusText, wxSizerFlags().Align(wxALIGN_LEFT).Expand());
 
     // shutter
-    gridsizer->Add(new wxStaticText(panel, -1, "Shutter"), wxSizerFlags().Align(wxALIGN_LEFT));
+    gridsizer->Add(new wxStaticText(panel, ID_SHUTTER_STATUS, "Shutter"), wxSizerFlags().Align(wxALIGN_LEFT));
     m_shutterStatusText = new wxTextCtrl(panel, -1, "", wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
     m_shutterStatusText->SetToolTip("shutter: Open or close");
     gridsizer->Add(m_shutterStatusText, wxSizerFlags().Align(wxALIGN_LEFT).Expand());
@@ -477,7 +491,7 @@ void MainFrame::OnCheckLaser(wxCommandEvent& event)
         wxMessageBox("Init system first", "Error");
         return;
     }    
-    wxBusyInfo info("checking laset status", this);
+  //  wxBusyInfo info("checking laset status", this);
     string laser = m_laser->GetLaserStatus();
     m_laserStatusText->SetLabel(laser.c_str());
     if(laser == "On") {
@@ -504,7 +518,6 @@ void MainFrame::OnCheckLaser(wxCommandEvent& event)
 
     string ilock = m_laser->GetInterlockStatus();
     m_interlockText->SetLabel(ilock.c_str());
-
 }
 
 void MainFrame::OnOpenShutter(wxCommandEvent &event)
@@ -522,11 +535,16 @@ void MainFrame::OnSingleShot(wxCommandEvent &event)
     m_laser->SingleShot();
 }
 
-void MainFrame::OnEStop(wxCommandEvent& event)
+void MainFrame::SafeClose()
 {
     m_controller->EmergencyStop();
     m_laser->CloseShutter();
     m_laser->SetLaserOff();
+}
+
+void MainFrame::OnEStop(wxCommandEvent& event)
+{
+    SafeClose();
 }
 
 void MainFrame::UpdateUI(bool enable)
@@ -596,6 +614,7 @@ void MainFrame::OnClose(wxCloseEvent &event)
     //  event.Veto(false);
     int ok = ::wxMessageBox("Do you want to exit?", "Exit", wxYES_NO);   
     if(ok == wxYES) {
+        SafeClose();
         Destroy();
     } else {
         event.Veto();
@@ -644,4 +663,28 @@ void MainFrame::OnChooseImagePath(wxCommandEvent& event)
 void MainFrame::OnEpc(wxCommandEvent &event)
 {
     m_laser->SetEPCOn();
+}
+
+void MainFrame::OnUpdateLaserStatus(wxUpdateUIEvent& event)
+{
+    wxString label = m_laserStatusText->GetLabel();
+    wxColour color;
+    if(label == "On") {
+        color = *wxRED;
+    } else {
+        color = *wxWHITE;
+    }
+    m_laserStatusText->SetBackgroundColour(color);
+}
+
+void MainFrame::OnUpdateShutterStatus(wxUpdateUIEvent& event)
+{
+    bool open = m_laser->IsShutterOpen();
+    wxColour color;
+    if(open) {
+        color = *wxRED;
+    } else {
+        color = *wxWHITE;
+    }
+    m_shutterStatusText->SetBackgroundColour(color);
 }

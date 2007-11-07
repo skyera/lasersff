@@ -6,6 +6,7 @@ using namespace std;
 SerialPort::SerialPort()
 {
     m_opened = false;
+    m_hcom = NULL;
 }
 
 SerialPort::~SerialPort()
@@ -59,6 +60,7 @@ bool SerialPort::Close()
     if(m_opened) {
         CloseHandle(m_hcom);
         m_opened = false;
+        m_hcom = NULL;
     }
     return true;
 }

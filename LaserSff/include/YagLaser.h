@@ -22,6 +22,7 @@ public:
     virtual bool Disconnect();
     virtual bool OpenShutter();
     virtual bool CloseShutter();
+    virtual bool IsShutterOpen();
     
     bool SetLaserOn();
     bool SetLaserOff();
@@ -51,6 +52,7 @@ private:
     bool m_connected;
     boost::shared_ptr<SerialPort> m_serialPortPtr;
     boost::shared_ptr<DaqBoard> m_daqboard;
+    bool m_shutterStatus;
 };
 
 }

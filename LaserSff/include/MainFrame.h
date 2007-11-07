@@ -30,6 +30,8 @@ public:
     void OnEStop(wxCommandEvent& event);
     void OnUpdateDisConnect(wxUpdateUIEvent &event);
     void OnUpdateConnect(wxUpdateUIEvent &event);
+    void OnUpdateLaserStatus(wxUpdateUIEvent& event);
+    void OnUpdateShutterStatus(wxUpdateUIEvent& event);
     void OnSetPower(wxCommandEvent& event);
     void OnLaserOn(wxCommandEvent& event);
     void OnLaserOff(wxCommandEvent& evnet);
@@ -47,6 +49,7 @@ private:
     void FormToolBar();
     void UpdateUI(bool enable);
     void ConnectToCom();
+    void SafeClose();
     
     void CreateLaserStatusControls(wxBoxSizer *topsizer, wxPanel *panel);
     void CreateLaserOperationControls(wxBoxSizer *topsizer, wxPanel *panel);
@@ -122,6 +125,8 @@ private:
         ID_IMAGE_PATH,
         ID_PROCESS_STATUS,
         ID_EPC,
+        ID_LASER_STATUS,
+        ID_SHUTTER_STATUS,
         ID_About = wxID_ABOUT
     };
     DECLARE_EVENT_TABLE()
