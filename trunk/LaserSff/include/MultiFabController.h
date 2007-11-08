@@ -31,6 +31,9 @@ public:
                                 wxTextCtrl *imagePath,
                                 wxTextCtrl *numSavedImage);
     virtual bool StopGrabImage();
+    virtual bool IsDisplayingImage();
+    virtual wxString GetImagePath();
+
     void DoAcquireImage();
     void Close();
 private:
@@ -54,6 +57,8 @@ private:
     wxTextCtrl *m_maxNumImageText;
     wxTextCtrl *m_imagePathText;
     wxTextCtrl *m_numSavedImageText;
+
+    wxString m_imagePath;
 
 };
 

@@ -397,10 +397,13 @@ void MainFrame::OnRun(wxCommandEvent& run)
 void MainFrame::OnPaint(wxPaintEvent& event)
 {
     wxPaintDC dc(this);
+    
+    if(!m_controller->IsDisplayingImage()) {
+        wxClientDC dc(m_poolPanel);
+        dc.DrawBitmap(m_poolBitmap, 0, 0);
+    }
 
-    wxClientDC dc2(m_poolPanel);
-    dc2.DrawBitmap(m_poolBitmap, 0, 0);
-
+    // rcam logo
     {
         wxClientDC dc(m_rcamPanel);
         dc.DrawBitmap(m_rcamBitmap, 0, 0);
@@ -438,8 +441,8 @@ wxPanel* MainFrame::CreateRightPanel(wxPanel *parent)
         {
 
             upsizer->Add(new wxStaticText(uppanel, -1, "Threshold"));
-            wxSlider *threshold = new wxSlider(uppanel, -1, 70, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL|wxSL_LABELS);
-            upsizer->Add(threshold, wxSizerFlags(0).Expand());
+            m_thresholdSlider = new wxSlider(uppanel, -1, 70, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL|wxSL_LABELS);
+            upsizer->Add(m_thresholdSlider, wxSizerFlags(0).Expand());
         }
 
         m_saveImageCheck = new wxCheckBox(uppanel, -1, "Save Image");
@@ -539,8 +542,10 @@ void MainFrame::OnSingleShot(wxCommandEvent &event)
 void MainFrame::SafeClose()
 {
     m_controller->EmergencyStop();
+    m_controller->StopGrabImage();
     m_laser->CloseShutter();
     m_laser->SetLaserOff();
+    ::wxUsleep(10);
 }
 
 void MainFrame::OnEStop(wxCommandEvent& event)
@@ -615,6 +620,8 @@ void MainFrame::OnClose(wxCloseEvent &event)
     //  event.Veto(false);
     int ok = ::wxMessageBox("Do you want to exit?", "Exit", wxYES_NO);   
     if(ok == wxYES) {
+        Hide();
+
         SafeClose();
         Destroy();
     } else {
@@ -636,9 +643,14 @@ void MainFrame::OnCheckDisplayImage(wxCommandEvent& event)
 
         if(!ok) {
             m_displayImageCheck->SetValue(false);
+        } else {
+            wxString str;
+            str << "Images are saved in "<< m_controller->GetImagePath();
+            SetStatusText(str, 1);
         }
     } else {
         m_controller->StopGrabImage();
+        Update();
     }        
 }
 

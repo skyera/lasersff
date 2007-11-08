@@ -14,7 +14,7 @@
 using namespace rcam;
 using namespace std;
 
-MultiFabController::MultiFabController():m_estop(false)
+MultiFabController::MultiFabController():m_estop(false), m_acquireImage(false)
 {
 
 }
@@ -152,7 +152,8 @@ bool MultiFabController::StartGrabImage(wxWindow* displayWindow,
     if(thread->Create() != wxTHREAD_NO_ERROR) {
         return false;
     }
-
+    string path = CreateDirectory(m_imagePathText->GetValue().c_str());
+    m_imagePath = path.c_str();
     thread->Run();
     return true;
 }
@@ -168,7 +169,8 @@ void MultiFabController::DoAcquireImage()
 {
     m_acquireImage = true;
     int count = 0;
-    string path = CreateDirectory(m_imagePathText->GetValue().c_str());
+    
+    string path = m_imagePath.c_str();
     HWND hwnd = static_cast<HWND>(m_displayWindow->GetHandle());
     long max;
     m_maxNumImageText->GetValue().ToLong(&max);
@@ -190,7 +192,9 @@ void MultiFabController::DoAcquireImage()
 
         // binary
         if(m_binaryImageCheckBox->GetValue()) {
+            //wxMutexGuiEnter();
             int threshold = m_thresholdSlider->GetValue();
+            //wxMutexGuiLeave();
             m_frameGrabber->BinaryImage(threshold);
         } 
 
@@ -234,4 +238,14 @@ void MultiFabController::Close()
     if(m_init) {
 
     }
+}
+
+bool MultiFabController::IsDisplayingImage()
+{
+    return m_acquireImage;
+}
+
+wxString MultiFabController::GetImagePath()
+{
+    return m_imagePath;    
 }
