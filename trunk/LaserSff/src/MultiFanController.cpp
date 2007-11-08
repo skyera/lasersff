@@ -95,7 +95,7 @@ bool MultiFabController::MonitorLaser()
     int finish = NOT_FINISHED;
 
     m_estop = false;
-    while(!m_estop && (finish == NOT_FINISHED)) {
+    while(!m_estop) {// && (finish == NOT_FINISHED)) {
         finish = m_daqboard->ReadFinishSignal();
         shutter = m_daqboard->ReadShutterSignal();
 
