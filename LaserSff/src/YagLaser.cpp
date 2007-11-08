@@ -39,6 +39,10 @@ bool YagLaser::Connect(int port)
 
 bool YagLaser::Disconnect()
 {
+    if(!m_connected) {
+        return true;
+    }
+
     if(m_serialPortPtr.get()) {
         m_serialPortPtr->Close();
         m_connected = false;
@@ -48,6 +52,10 @@ bool YagLaser::Disconnect()
 
 bool YagLaser::OpenShutter()
 {
+    if(!m_connected) {
+        return false;
+    }
+
     for(int i = 0; i < N; i++) {
         string cmd("C1\r");
         Write(cmd);
@@ -59,6 +67,10 @@ bool YagLaser::OpenShutter()
 
 bool YagLaser::CloseShutter()
 {
+    if(!m_connected) {
+        return false;
+    }
+
     for(int i = 0; i < N; i++) {
         string cmd("C0\r");
         Write(cmd);
@@ -70,6 +82,10 @@ bool YagLaser::CloseShutter()
 
 bool YagLaser::SetLaserOn()
 {
+    if(!m_connected) {
+        return false;
+    }
+
     string cmd("B2\r");
     Write(cmd);
     ReadResponse();
@@ -78,6 +94,9 @@ bool YagLaser::SetLaserOn()
 
 bool YagLaser::SetLaserOff()
 {
+    if(!m_connected) {
+        return false;
+    }
     string cmd("B0\r");
     Write(cmd);
     ReadResponse();
@@ -86,6 +105,9 @@ bool YagLaser::SetLaserOff()
 
 bool YagLaser::SetLaserStandby()
 {
+    if(!m_connected) {
+        return false;
+    }
     string cmd("B1\r");
 
     Write(cmd);
@@ -123,6 +145,9 @@ string YagLaser::GetLaserStatus()
 
 string YagLaser::GetShutterStatus()
 {
+    if(!m_connected) {
+        return "not connected";
+    }
     string st;
     for(int i = 0; i < N; i++) {
         string cmd("O2\r");
@@ -142,6 +167,9 @@ string YagLaser::GetShutterStatus()
 
 string YagLaser::GetPowerPercent()
 {
+    if(!m_connected) {
+        return "not connected";
+    }
     string response;
     int power;
     for(int i = 0; i < N; i++) {
@@ -163,6 +191,9 @@ string YagLaser::GetPowerPercent()
 
 string YagLaser::GetPowerWatt()
 {
+    if(!m_connected) {
+        return "not connected";
+    }
     string response;
 
     for(int i = 0; i < N; i++) {
@@ -198,6 +229,9 @@ bool YagLaser::SetEPCOn()
 
 bool YagLaser::SetEPCOff()
 {
+    if(!m_connected) {
+        return false;
+    }
     string cmd("i0\r");
     Write(cmd);
     ReadResponse();
@@ -206,6 +240,9 @@ bool YagLaser::SetEPCOff()
 
 bool YagLaser::SingleShot()
 {
+    if(!m_connected) {
+        return false;
+    }
     string cmd("X\r");
     Write(cmd);
     ReadResponse();
@@ -214,6 +251,9 @@ bool YagLaser::SingleShot()
 
 bool YagLaser::SetPower(int percent)
 {
+    if(!m_connected) {
+        return false;
+    }
     //    stringstream ss;
     //    ss << "G" << percent;
 
@@ -225,6 +265,9 @@ bool YagLaser::SetPower(int percent)
 
 bool YagLaser::SetEPCHighValue()
 {
+    if(!m_connected) {
+        return false;
+    }
     string cmd("g100\r");
     Write(cmd);
     ReadResponse();
@@ -233,6 +276,9 @@ bool YagLaser::SetEPCHighValue()
 
 bool YagLaser::SetEPCLowValue()
 {
+    if(!m_connected) {
+        return false;
+    }
     string cmd("h0\r");
     Write(cmd);
     ReadResponse();
@@ -241,6 +287,9 @@ bool YagLaser::SetEPCLowValue()
 
 string YagLaser::GetEPCStatus()
 {
+    if(!m_connected) {
+        return "not connected";
+    }
     string cmd("Oj\r");
 
     Write(cmd);

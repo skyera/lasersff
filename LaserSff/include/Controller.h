@@ -31,6 +31,8 @@ public:
                                 wxTextCtrl *imagePath,
                                 wxTextCtrl *numSavedImage) = 0;
     virtual bool StopGrabImage() = 0;
+    virtual bool IsDisplayingImage() = 0;
+    virtual wxString GetImagePath() = 0;
 
 protected:
     bool m_init;

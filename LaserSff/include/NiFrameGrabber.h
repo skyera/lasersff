@@ -32,6 +32,7 @@ private:
 	unsigned int m_bitsPerPixel;
     unsigned int m_plotFlag;
     Int8 *m_ImaqBuffer;
+    bool m_opened;
 
 };
 

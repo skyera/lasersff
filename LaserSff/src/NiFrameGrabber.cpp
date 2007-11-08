@@ -6,7 +6,7 @@ using namespace std;
 
 NiFrameGrabber::NiFrameGrabber():m_interfaceName("img0"), m_Iid(0), m_Sid(0)
 {
-
+    m_opened = false;
 }
 
 NiFrameGrabber::~NiFrameGrabber()
@@ -39,6 +39,7 @@ void NiFrameGrabber::SaveImage(const string& filename)
 
 bool NiFrameGrabber::Init()
 {
+    m_opened = false;
     int st = imgInterfaceOpen(const_cast<Int8*>(m_interfaceName.c_str()), &m_Iid);
     if(st < 0) {
         DisplayImgError(st);
@@ -93,12 +94,16 @@ bool NiFrameGrabber::Init()
         DisplayImgError(st);
         return false;
     }
+    m_opened = true;
     return true;
 }
 
 
 bool NiFrameGrabber::Close()
 {
+    if(!m_opened) {
+        return true;
+    }
     int st = imgSessionStopAcquisition(m_Sid);
     if(st < 0) {
         return false;
@@ -108,6 +113,7 @@ bool NiFrameGrabber::Close()
     imgClose (m_Iid, TRUE);
     m_Sid = 0;
     m_Iid = 0;
+    m_opened = false;
     return true;
 }
 
