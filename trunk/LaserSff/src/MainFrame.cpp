@@ -15,8 +15,6 @@
 #include <wx/busyinfo.h>
 #include <wx/toolbar.h>
 
-
-
 using namespace rcam;
 using namespace std;
 

@@ -77,7 +77,7 @@ int PCI1200::ReadFinishSignal()
 
 int PCI1200::ReadShutterSignal()
 {
-    return ReadPort(0);
+    return ReadPort(3);
 }
 
 bool PCI1200::SetLaserPower(int percent)
