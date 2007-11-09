@@ -12,13 +12,14 @@ namespace rcam {
 
 class Laser;
 
+
 class MultiFabController: public Controller 
 {
 public:
     MultiFabController();
     ~MultiFabController();
 
-    virtual bool Init(int port);
+    virtual bool Init();
     virtual bool Disconnect();
     virtual bool MonitorLaser();
     virtual boost::shared_ptr<Laser> GetLaser();
@@ -33,9 +34,23 @@ public:
     virtual bool StopGrabImage();
     virtual bool IsDisplayingImage();
     virtual wxString GetImagePath();
+    virtual void SetFrame(MainFrame *frame);
+    virtual void Close();
+    virtual void CheckLaserStatus();
+    virtual void SetLaserSerialPort(int port);
+    virtual int GetLaserSerialPort();
+    virtual bool OpenLaserShutter();
+    virtual bool CloseLaserShutter();
+    virtual bool DoSingleShot();
+    virtual bool SetLaserPowerPercent(int percent);
+    virtual bool SetLaserOn();
+    virtual bool SetLaserOff();
+    virtual bool SetLaserStandby();
+    virtual bool SetLaserEpcOn();
+    virtual void ChooseImagePath();
+    virtual bool Run();
 
     void DoAcquireImage();
-    void Close();
 private:
 
     bool InitLaser(int port);
@@ -59,6 +74,8 @@ private:
     wxTextCtrl *m_numSavedImageText;
 
     wxString m_imagePath;
+    MainFrame *m_frame;
+    int m_laserSerialPort;
 
 };
 

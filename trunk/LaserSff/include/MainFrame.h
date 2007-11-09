@@ -30,8 +30,6 @@ public:
     void OnEStop(wxCommandEvent& event);
     void OnUpdateDisConnect(wxUpdateUIEvent &event);
     void OnUpdateConnect(wxUpdateUIEvent &event);
-    void OnUpdateLaserStatus(wxUpdateUIEvent& event);
-    void OnUpdateShutterStatus(wxUpdateUIEvent& event);
     void OnSetPower(wxCommandEvent& event);
     void OnLaserOn(wxCommandEvent& event);
     void OnLaserOff(wxCommandEvent& evnet);
@@ -41,15 +39,25 @@ public:
     void OnCheckDisplayImage(wxCommandEvent& event);
     void OnChooseImagePath(wxCommandEvent& event);
     void OnEpc(wxCommandEvent& event);
+    
+    void SetLaserStatus(const wxString& laser);
+    void SetShutterStatus(const wxString& shutter);
+    void SetPowerPercent(const wxString& powerPercent);
+    void SetPowerWatt(const wxString& powerWatt);
+    void SetEpc(const wxString& epc);
+    void SetInterlock(const wxString& lock);
+
+    void SetImagePath(const wxString& path);
+    void SetPowerSpin(int power);
+    void UpdateUI(const wxString& info, bool enable);
+    void PrepareRun();
+    void FinishRun();
 private:
     void CreateMenu();
     void CreateControls();
     wxPanel* CreateLeftPanel(wxPanel* parent);
     wxPanel* CreateRightPanel(wxPanel* panel);
     void FormToolBar();
-    void UpdateUI(bool enable);
-    void ConnectToCom();
-    void SafeClose();
     
     void CreateLaserStatusControls(wxBoxSizer *topsizer, wxPanel *panel);
     void CreateLaserOperationControls(wxBoxSizer *topsizer, wxPanel *panel);
@@ -57,7 +65,6 @@ private:
 
     // data
     boost::shared_ptr<rcam::Controller> m_controller;
-    boost::shared_ptr<rcam::Laser> m_laser;
 
     wxPanel *m_logoPanel;
     wxBitmap m_logoBitmap;

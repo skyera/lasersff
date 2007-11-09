@@ -10,13 +10,14 @@
 #include "DaqBoardFactory.h"
 #include <wx/datetime.h>
 #include <wx/dir.h>
+#include "MainFrame.h"
+#include "LaserThread.h"
 
 using namespace rcam;
 using namespace std;
 
 MultiFabController::MultiFabController():m_estop(false), m_acquireImage(false)
 {
-
 }
 
 MultiFabController::~MultiFabController()
@@ -24,8 +25,21 @@ MultiFabController::~MultiFabController()
 
 }
 
-bool MultiFabController::Init(int port)
+bool MultiFabController::Init()
 {
+    boost::scoped_ptr<wxConfig> config(new wxConfig(Parameters::AppName));
+    
+    // image path
+    wxString path = config->Read(Parameters::ImagePath, "c:\\");
+    m_frame->SetImagePath(path);
+
+    // power in spinctrl
+    int power = config->Read(Parameters::PowerPercent, 51);
+    m_frame->SetPowerSpin(power);
+
+    // laser port
+    int port = config->Read(Parameters::SerialPort, 3); 
+    m_laserSerialPort = port;
     // laser
     bool ok1 = InitLaser(port);
     if(!ok1) {
@@ -48,6 +62,13 @@ bool MultiFabController::Init(int port)
     m_init = ok1 && ok2 && ok3;
     m_laserPtr->SetDaqboard(m_daqboard);
 
+    wxString info;
+    if(m_init) {
+        info << "laser is connected to serial port " << port;
+    } else {
+        info << "laser failed to connect to serial port " << port;
+    }
+    m_frame->UpdateUI(info, m_init);
     return m_init;
 }
 
@@ -82,6 +103,7 @@ bool MultiFabController::Disconnect()
     if(m_laserPtr.get()) {
         m_laserPtr->Disconnect();
     }
+    m_frame->UpdateUI("laser is disconnected", false);
 
     m_init = false;
     return true;
@@ -101,17 +123,18 @@ bool MultiFabController::MonitorLaser()
 
         // shutter
         if(prevshutter == SHUTTER_CLOSE  && shutter == SHUTTER_OPEN) {
-            m_laserPtr->OpenShutter();
+            this->OpenLaserShutter();
         } else if(prevshutter == SHUTTER_OPEN && shutter == SHUTTER_CLOSE) {
-            m_laserPtr->CloseShutter();
+            this->CloseLaserShutter();
         } else {
             // do nothing
         }
         prevshutter = shutter;
         prevfinish = finish;
     }
-    m_laserPtr->CloseShutter();
-    m_laserPtr->SetLaserStandby();
+    this->CloseLaserShutter();
+    this->SetLaserStandby();
+    m_frame->FinishRun();
     return true;
 }
 
@@ -123,6 +146,7 @@ boost::shared_ptr<Laser> MultiFabController::GetLaser()
 bool MultiFabController::EmergencyStop()
 {
     m_estop = true;
+    m_frame->FinishRun();
     return true;
 }
 
@@ -233,13 +257,6 @@ string MultiFabController::CreateDirectory(const string& rootpath)
     return path.c_str();
 }
 
-void MultiFabController::Close()
-{
-    if(m_init) {
-
-    }
-}
-
 bool MultiFabController::IsDisplayingImage()
 {
     return m_acquireImage;
@@ -248,4 +265,146 @@ bool MultiFabController::IsDisplayingImage()
 wxString MultiFabController::GetImagePath()
 {
     return m_imagePath;    
+}
+
+void MultiFabController::SetFrame(MainFrame *frame)
+{
+    m_frame = frame;
+}
+
+void MultiFabController::Close()
+{
+    EmergencyStop();
+    StopGrabImage();
+    m_laserPtr->CloseShutter();
+    m_laserPtr->SetLaserOff();
+    ::wxUsleep(10);    
+}
+
+void MultiFabController::CheckLaserStatus()
+{
+    if(!IsInited()) {
+        wxMessageBox("Init system first", "Error");
+        return;
+    }    
+    
+    //  wxBusyInfo info("checking laset status", this);
+    string laser = m_laserPtr->GetLaserStatus();
+    string shutter = m_laserPtr->GetShutterStatus();
+    string powerPercent = m_laserPtr->GetPowerPercent();
+    string powerWatt = m_laserPtr->GetPowerWatt();
+    string epc = m_laserPtr->GetEPCStatus();
+    string ilock = m_laserPtr->GetInterlockStatus();
+
+    m_frame->SetLaserStatus(laser);
+    m_frame->SetShutterStatus(shutter);
+    m_frame->SetPowerPercent(powerPercent);
+    m_frame->SetPowerWatt(powerWatt);
+    m_frame->SetEpc(epc);
+    m_frame->SetInterlock(ilock);
+}
+
+void MultiFabController::SetLaserSerialPort(int port)
+{
+    m_laserSerialPort = port;
+}
+
+int MultiFabController::GetLaserSerialPort()
+{
+    return m_laserSerialPort;
+}
+
+bool MultiFabController::OpenLaserShutter()
+{
+    m_laserPtr->OpenShutter();
+    string shutter = m_laserPtr->GetShutterStatus();
+    m_frame->SetShutterStatus(shutter.c_str());
+    return true;
+}
+
+bool MultiFabController::CloseLaserShutter()
+{
+    m_laserPtr->CloseShutter();
+    string shutter = m_laserPtr->GetShutterStatus();
+    m_frame->SetShutterStatus(shutter.c_str());
+    return true;
+}
+
+bool MultiFabController::DoSingleShot()
+{
+    m_laserPtr->SingleShot();
+    return true;
+}
+
+bool MultiFabController::SetLaserPowerPercent(int percent)
+{
+    m_laserPtr->SetPower(percent);
+    string power = m_laserPtr->GetPowerPercent();
+    m_frame->SetPowerPercent(power);
+    
+    boost::shared_ptr<wxConfig> config(new wxConfig(Parameters::AppName));
+    config->Write(Parameters::PowerPercent, power);
+    return true;
+}
+
+bool MultiFabController::SetLaserOn()
+{
+    m_laserPtr->SetLaserOn();
+    string laser = m_laserPtr->GetLaserStatus();
+    m_frame->SetLaserStatus(laser.c_str());
+    return true;
+}
+
+bool MultiFabController::SetLaserOff()
+{
+    m_laserPtr->SetLaserOff();
+    string laser = m_laserPtr->GetLaserStatus();
+    m_frame->SetLaserStatus(laser.c_str());
+    return true;
+}
+
+bool MultiFabController::SetLaserStandby()
+{
+    m_laserPtr->SetLaserStandby();
+    string laser = m_laserPtr->GetLaserStatus();
+    m_frame->SetLaserStatus(laser.c_str());
+    return true;
+}
+
+void MultiFabController::ChooseImagePath()
+{
+    wxString dirHome;
+    wxGetHomeDir(&dirHome);
+    int style = wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST;
+
+    wxDirDialog dialog(m_frame, _T("Testing directory picker"), dirHome, style);
+
+    if (dialog.ShowModal() == wxID_OK) {
+        wxString path = dialog.GetPath();
+        m_frame->SetImagePath(path);
+
+        boost::scoped_ptr<wxConfig> config(new wxConfig(Parameters::AppName));
+        config->Write(Parameters::ImagePath, path);
+    }    
+}
+
+bool MultiFabController::SetLaserEpcOn()
+{
+    m_laserPtr->SetEPCOn();
+    string epc = m_laserPtr->GetEPCStatus();
+    m_frame->SetEpc(epc.c_str());
+    return true;
+}
+
+bool MultiFabController::Run()
+{
+    LaserThread *thread = new LaserThread(this);
+
+    if(thread->Create() != wxTHREAD_NO_ERROR) {
+        wxLogError("Cannot create thread");
+    }
+
+    m_frame->PrepareRun();
+    thread->Run();
+    return true;
 }
