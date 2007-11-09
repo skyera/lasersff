@@ -439,8 +439,6 @@ void MainFrame::FinishRun()
     m_runButton->Enable();
 
     m_processStatusText->SetLabel("Finished");
-    boost::scoped_ptr<wxConfig> config(new wxConfig(Parameters::AppName));
-    config->Write(Parameters::PowerPercent, m_powerSpinCtrl->GetValue());
 }
 
 void MainFrame::OnCheckLaser(wxCommandEvent& event)
