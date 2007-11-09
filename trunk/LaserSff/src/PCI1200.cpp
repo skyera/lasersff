@@ -2,7 +2,7 @@
 
 using namespace rcam;
 
-#define SIMU 0
+#define SIMU 1
 
 PCI1200::PCI1200()
 {
