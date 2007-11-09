@@ -275,9 +275,10 @@ void MultiFabController::SetFrame(MainFrame *frame)
 void MultiFabController::Close()
 {
     EmergencyStop();
-    StopGrabImage();
+    
     m_laserPtr->CloseShutter();
     m_laserPtr->SetLaserOff();
+    StopGrabImage();
     ::wxUsleep(10);    
 }
 

@@ -119,7 +119,7 @@ bool NiFrameGrabber::Close()
 
 void NiFrameGrabber::DisplayImgError(Int32 error)
 {
-    static Int8 ErrorMessage[256];
+    Int8 ErrorMessage[256];
 
     memset(ErrorMessage, 0x00, sizeof(ErrorMessage));
 

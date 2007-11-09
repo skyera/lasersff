@@ -15,9 +15,9 @@ DeviceCheckDialog::DeviceCheckDialog(wxWindow *parent, const wxString title)
                                         wxSize(100, 100),    
                                         WXSIZEOF(items), items);
 
-    for(int i = 0; i < m_checkListBox->GetCount(); i += 2) {
-        m_checkListBox->GetItem(i)->SetBackgroundColour(*wxLIGHT_GREY);
-    }
+    //for(int i = 0; i < m_checkListBox->GetCount(); i += 2) {
+    //    m_checkListBox->GetItem(i)->SetBackgroundColour(*wxLIGHT_GREY);
+    //}
     wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL);
     sizer->Add(m_checkListBox, wxSizerFlags(1).Expand().Border(wxALL, 5));
     wxSizer *btns = CreateButtonSizer(wxOK|wxCANCEL);
