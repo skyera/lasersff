@@ -77,12 +77,8 @@ bool MultiFabController::InitLaser(int port)
     m_laserPtr = LaserFactory::CreateLaser("Yag");
 
     if(!m_laserPtr->Connect(port)) {
-        wxString msg;
-        msg << "Cannot open serial port " << port;
-        //wxMessageBox(msg, "Error", wxOK|wxICON_ERROR);
         return false;
     } else {
-        //      m_laserPtr->SetEPCOn();
         // write it to config file
         boost::scoped_ptr<wxConfig> config(new wxConfig(Parameters::AppName));
         config->Write(Parameters::SerialPort, port);
@@ -130,7 +126,7 @@ bool MultiFabController::MonitorLaser()
             // do nothing
         }
         prevshutter = shutter;
-        prevfinish = finish;
+        //prevfinish = finish;
     }
     this->CloseLaserShutter();
     this->SetLaserStandby();
