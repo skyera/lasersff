@@ -341,12 +341,7 @@ bool MultiFabController::SetLaserPowerPercent(int percent)
     m_frame->SetPowerPercent(power);
     
     boost::shared_ptr<wxConfig> config(new wxConfig(Parameters::AppName));
-
-    try {
-        int p = boost::lexical_cast<int>(power);
-        config->Write(Parameters::PowerPercent, p);
-    } catch(boost::bad_lexical_cast &err) {
-    }
+    config->Write(Parameters::PowerPercent, percent);
     
     return true;
 }
