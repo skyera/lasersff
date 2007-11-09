@@ -19,6 +19,8 @@ using namespace std;
 
 MultiFabController::MultiFabController():m_estop(false), m_acquireImage(false)
 {
+    m_laserThread = NULL;
+    m_imageThread = NULL;
 }
 
 MultiFabController::~MultiFabController()
@@ -131,7 +133,7 @@ bool MultiFabController::MonitorLaser()
     }
     this->CloseLaserShutter();
     this->SetLaserStandby();
-    m_frame->FinishRun();
+//    m_frame->FinishRun();
     return true;
 }
 
@@ -143,6 +145,11 @@ boost::shared_ptr<Laser> MultiFabController::GetLaser()
 bool MultiFabController::EmergencyStop()
 {
     m_estop = true;
+
+    if(m_laserThread) {
+        m_laserThread->Wait();
+        m_laserThread = NULL;
+    }
     m_frame->FinishRun();
     return true;
 }
@@ -169,13 +176,13 @@ bool MultiFabController::StartGrabImage(wxWindow* displayWindow,
     } 
 
     // thread
-    ImageThread *thread = new ImageThread(this);
-    if(thread->Create() != wxTHREAD_NO_ERROR) {
+    m_imageThread = new ImageThread(this);
+    if(m_imageThread->Create() != wxTHREAD_NO_ERROR) {
         return false;
     }
     string path = CreateDirectory(m_imagePathText->GetValue().c_str());
     m_imagePath = path.c_str();
-    thread->Run();
+    m_imageThread->Run();
     return true;
 }
 
@@ -227,6 +234,10 @@ void MultiFabController::DoAcquireImage()
 bool MultiFabController::StopGrabImage()
 {
     m_acquireImage = false;
+    if(m_imageThread) {
+        m_imageThread->Wait();
+        m_imageThread = NULL;
+    }
     return true;
 }
 
@@ -397,13 +408,13 @@ bool MultiFabController::SetLaserEpcOn()
 
 bool MultiFabController::Run()
 {
-    LaserThread *thread = new LaserThread(this);
+    m_laserThread = new LaserThread(this);
 
-    if(thread->Create() != wxTHREAD_NO_ERROR) {
+    if(m_laserThread->Create() != wxTHREAD_NO_ERROR) {
         wxLogError("Cannot create thread");
     }
 
     m_frame->PrepareRun();
-    thread->Run();
+    m_laserThread->Run();
     return true;
 }

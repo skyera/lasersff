@@ -7,6 +7,7 @@
 #include "DaqBoard.h"
 #include "FrameGrabber.h"
 #include <string>
+#include <wx/thread.h>
 
 namespace rcam {
 
@@ -76,6 +77,8 @@ private:
     wxString m_imagePath;
     MainFrame *m_frame;
     int m_laserSerialPort;
+    wxThread *m_laserThread;
+    wxThread *m_imageThread;
 
 };
 

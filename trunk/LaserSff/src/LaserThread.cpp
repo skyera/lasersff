@@ -1,7 +1,7 @@
 #include "LaserThread.h"
 #include "Controller.h"
 
-LaserThread::LaserThread(rcam::Controller *controller)
+LaserThread::LaserThread(rcam::Controller *controller):wxThread(wxTHREAD_JOINABLE)
 {
     m_controller = controller;
 }
