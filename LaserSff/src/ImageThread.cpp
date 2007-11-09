@@ -1,6 +1,8 @@
 #include "ImageThread.h"
 
-ImageThread::ImageThread(rcam::MultiFabController *controller):m_controller(controller)
+ImageThread::ImageThread(rcam::MultiFabController *controller)
+    :wxThread(wxTHREAD_JOINABLE), m_controller(controller)
+
 {
 
 }
