@@ -19,39 +19,33 @@ using namespace rcam;
 using namespace std;
 
 BEGIN_EVENT_TABLE(MainFrame, wxFrame)
-EVT_MENU(ID_CONNECT, MainFrame::OnConnect)
-EVT_MENU(ID_DISCONNECT, MainFrame::OnDisconnect)
-EVT_MENU(ID_Quit,  MainFrame::OnQuit)
-EVT_MENU(ID_OPTIONS, MainFrame::OnOptions)
-EVT_MENU(ID_About, MainFrame::OnAbout)
-EVT_PAINT(MainFrame::OnPaint)
-EVT_BUTTON(ID_RUN, MainFrame::OnRun)
-EVT_BUTTON(ID_CHECKLASER, MainFrame::OnCheckLaser)
-EVT_BUTTON(ID_OPENSHUTTER, MainFrame::OnOpenShutter)
-EVT_BUTTON(ID_CLOSESHUTTER, MainFrame::OnCloseShutter)
-EVT_BUTTON(ID_SINGLESHOT, MainFrame::OnSingleShot)
-EVT_BUTTON(ID_ESTOP, MainFrame::OnEStop)
-EVT_BUTTON(ID_SETPOWER, MainFrame::OnSetPower)
+    EVT_MENU(ID_CONNECT, MainFrame::OnConnect)
+    EVT_MENU(ID_DISCONNECT, MainFrame::OnDisconnect)
+    EVT_MENU(ID_Quit,  MainFrame::OnQuit)
+    EVT_MENU(ID_OPTIONS, MainFrame::OnOptions)
+    EVT_MENU(ID_About, MainFrame::OnAbout)
+    EVT_PAINT(MainFrame::OnPaint)
+    EVT_BUTTON(ID_RUN, MainFrame::OnRun)
+    EVT_BUTTON(ID_CHECKLASER, MainFrame::OnCheckLaser)
+    EVT_BUTTON(ID_OPENSHUTTER, MainFrame::OnOpenShutter)
+    EVT_BUTTON(ID_CLOSESHUTTER, MainFrame::OnCloseShutter)
+    EVT_BUTTON(ID_SINGLESHOT, MainFrame::OnSingleShot)
+    EVT_BUTTON(ID_ESTOP, MainFrame::OnEStop)
+    EVT_BUTTON(ID_SETPOWER, MainFrame::OnSetPower)
 
-EVT_UPDATE_UI(ID_DISCONNECT, MainFrame::OnUpdateDisConnect)
-EVT_UPDATE_UI(ID_CONNECT, MainFrame::OnUpdateConnect)
-//EVT_UPDATE_UI(ID_LASER_STATUS, MainFrame::OnUpdateLaserStatus)
-//EVT_UPDATE_UI(ID_SHUTTER_STATUS, MainFrame::OnUpdateShutterStatus)
-
-EVT_BUTTON(ID_LASERON, MainFrame::OnLaserOn)
-EVT_BUTTON(ID_LASEROFF, MainFrame::OnLaserOff)
-EVT_BUTTON(ID_LASERSTANDBY, MainFrame::OnLaserStandby)
-EVT_TIMER(ID_TIMER, MainFrame::OnTimer)
-EVT_CHECKBOX(ID_DISPLAY_IMAGE_CHECK, MainFrame::OnCheckDisplayImage)
-EVT_BUTTON(ID_IMAGE_PATH, MainFrame::OnChooseImagePath)
-EVT_CLOSE(MainFrame::OnClose)
-EVT_BUTTON(ID_EPC,MainFrame::OnEpc)
+    EVT_UPDATE_UI(ID_DISCONNECT, MainFrame::OnUpdateDisConnect)
+    EVT_UPDATE_UI(ID_CONNECT, MainFrame::OnUpdateConnect)
+    EVT_BUTTON(ID_LASERON, MainFrame::OnLaserOn)
+    EVT_BUTTON(ID_LASEROFF, MainFrame::OnLaserOff)
+    EVT_BUTTON(ID_LASERSTANDBY, MainFrame::OnLaserStandby)
+    EVT_TIMER(ID_TIMER, MainFrame::OnTimer)
+    EVT_CHECKBOX(ID_DISPLAY_IMAGE_CHECK, MainFrame::OnCheckDisplayImage)
+    EVT_BUTTON(ID_IMAGE_PATH, MainFrame::OnChooseImagePath)
+    EVT_CLOSE(MainFrame::OnClose)
+    EVT_BUTTON(ID_EPC,MainFrame::OnEpc)
 END_EVENT_TABLE()
 
-MainFrame::MainFrame(const wxString &title):wxFrame(NULL, wxID_ANY, title)//, 
-//wxDefaultPosition, 
-//wxDefaultSize,
-//wxDEFAULT_FRAME_STYLE & ~(wxMAXIMIZE_BOX|wxRESIZE_BORDER|wxRESIZE_BOX))
+MainFrame::MainFrame(const wxString &title):wxFrame(NULL, wxID_ANY, title)
 {
     SetIcon(wxICON(sample));
     CreateMenu();
@@ -59,30 +53,19 @@ MainFrame::MainFrame(const wxString &title):wxFrame(NULL, wxID_ANY, title)//,
     CreateControls();
     CreateStatusBar(2);
     SetStatusText(_T("LAser!"));
-
     m_timer.SetOwner(this, ID_TIMER);
-    boost::scoped_ptr<wxConfig> config(new wxConfig(Parameters::AppName));
-    wxString path = config->Read(Parameters::ImagePath, "c:\\");
-    m_imagePathText->SetLabel(path);
-
-    int power = config->Read(Parameters::PowerPercent, 51);
-    m_powerSpinCtrl->SetValue(power);
+    
     GetSizer()->Fit(this);
     GetSizer()->SetSizeHints(this);
     Centre();
+    
+
+    // controller
     wxString name("MultiFab");
     m_controller = ControllerFactory::CreateController(name);
+    m_controller->SetFrame(this);
 
-    int port = config->Read(Parameters::SerialPort, 3); 
-    bool inited = m_controller->Init(port);
-    m_laser = m_controller->GetLaser();
-    wxString info;
-    if(inited) {
-        info << "laser is connected to serial port " << port;
-    } else {
-        info << "laser failed to connect to serial port " << port;
-    }
-    SetStatusText(info);
+    m_controller->Init();
 }
 
 void MainFrame::FormToolBar()
@@ -145,42 +128,24 @@ void MainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 
 void MainFrame::OnOptions(wxCommandEvent& event)
 {
-    wxMessageDialog* dlg = new wxMessageDialog(this, _T("hi"));
-    dlg->ShowModal();
+//    wxMessageDialog* dlg = new wxMessageDialog(this, _T("hi"));
+//    dlg->ShowModal();
+//    dlg->Destroy();
 }
 
 void MainFrame::OnConnect(wxCommandEvent& event)
 {
-    ConnectToCom();
-}
-
-void MainFrame::ConnectToCom()
-{
     ConnectDialog dlg(this, "Connect");
     if(dlg.ShowModal() == wxID_OK) {
         int port = dlg.GetSerialPortNumber();
-        wxString status;
-        bool flag;
-
-        if(m_controller->Init(port)) {
-            status << "Laser is connectedt to serial port " << port;
-            m_laser = m_controller->GetLaser();
-            flag = true;
-
-        } else {
-            flag = false;
-            status << "Laser failed to connect to serial port " << port;
-        }
-        SetStatusText(status);
-        UpdateUI(flag);
+        m_controller->SetLaserSerialPort(port);
+        m_controller->Init();
     }
 }
 
 void MainFrame::OnDisconnect(wxCommandEvent& event)
 {
     m_controller->Disconnect();
-    SetStatusText("Disconnected");
-    UpdateUI(false);
 }
 
 void MainFrame::CreateControls()
@@ -330,7 +295,6 @@ void MainFrame::CreateLaserOperationControls(wxBoxSizer *topsizer, wxPanel *pane
 
         m_singleShotButton = new wxButton(panel, ID_SINGLESHOT, "single shot");
         sizer->Add(m_singleShotButton, wxSizerFlags(1).Align(wxALIGN_CENTER).Border(wxALL, 5).Expand());
-
     }
 }
 
@@ -379,16 +343,7 @@ void MainFrame::OnRun(wxCommandEvent& run)
     int ok = dlg.ShowModal();
 
     if(ok == wxID_OK && dlg.IsRun()) {
-        LaserThread *thread = new LaserThread(this);
-
-        if(thread->Create() != wxTHREAD_NO_ERROR) {
-            wxLogError("Cannot create thread");
-        }
-
-        m_timer.Start(1000);
-        m_processTime = 0;
-        m_processStatusText->SetLabel("Running....");
-        thread->Run();
+        m_controller->Run();
     }
 }
 
@@ -466,7 +421,11 @@ wxPanel* MainFrame::CreateRightPanel(wxPanel *parent)
     }
 
     topsizer->AddStretchSpacer(1);
-    topsizer->Add(new wxStaticText(panel, -1, "SMU RCAM Laser Center"), wxSizerFlags().Center().Border(wxALL, 5));
+    wxStaticText *rcam = new wxStaticText(panel, -1, "SMU RCAM Laser Center");
+    rcam->SetForegroundColour(*wxBLUE);
+    wxFont font(12, wxFONTFAMILY_ROMAN, wxITALIC, wxBOLD, false);
+    rcam->SetFont(font);
+    topsizer->Add(rcam, wxSizerFlags().Center().Border(wxALL, 5));
     m_rcamPanel = new wxPanel(panel, -1, wxDefaultPosition, wxSize(m_rcamBitmap.GetWidth(), m_rcamBitmap.GetHeight()), wxBORDER_SUNKEN );
 
     topsizer->Add(m_rcamPanel, wxSizerFlags().Center().Border(wxALL, 5));
@@ -474,11 +433,8 @@ wxPanel* MainFrame::CreateRightPanel(wxPanel *parent)
     return panel;
 }
 
-void MainFrame::MonitorLaser()
+void MainFrame::FinishRun()
 {
-    m_runButton->Disable();
-
-    m_controller->MonitorLaser();
     m_timer.Stop();
     m_runButton->Enable();
 
@@ -489,70 +445,33 @@ void MainFrame::MonitorLaser()
 
 void MainFrame::OnCheckLaser(wxCommandEvent& event)
 {
-    if(!m_controller->IsInited()) {
-        wxMessageBox("Init system first", "Error");
-        return;
-    }    
-  //  wxBusyInfo info("checking laset status", this);
-    string laser = m_laser->GetLaserStatus();
-    m_laserStatusText->SetLabel(laser.c_str());
-    if(laser == "On") {
-        m_laserStatusText->SetBackgroundColour(*wxRED);
-    } else {
-        m_laserStatusText->SetBackgroundColour(*wxWHITE);
-    }
-
-    string shutter = m_laser->GetShutterStatus();
-    m_shutterStatusText->SetLabel(shutter.c_str());
-    if(shutter == "Open") {
-        m_shutterStatusText->SetBackgroundColour(*wxRED);
-    } else {
-        m_shutterStatusText->SetBackgroundColour(*wxWHITE);
-    }
-    string powerPercent = m_laser->GetPowerPercent();
-    m_powerPercentText->SetLabel(powerPercent.c_str());
-
-    string powerWatt = m_laser->GetPowerWatt();
-    m_powerWattText->SetLabel(powerWatt);
-
-    string epc = m_laser->GetEPCStatus();
-    m_epcText->SetLabel(epc.c_str());
-
-    string ilock = m_laser->GetInterlockStatus();
-    m_interlockText->SetLabel(ilock.c_str());
+    m_controller->CheckLaserStatus();
 }
 
 void MainFrame::OnOpenShutter(wxCommandEvent &event)
 {
-    m_laser->OpenShutter();
+    m_controller->OpenLaserShutter();
 }
 
 void MainFrame::OnCloseShutter(wxCommandEvent &event)
 {
-    m_laser->CloseShutter();
+    m_controller->CloseLaserShutter();
 }
 
 void MainFrame::OnSingleShot(wxCommandEvent &event)
 {
-    m_laser->SingleShot();
-}
-
-void MainFrame::SafeClose()
-{
-    m_controller->EmergencyStop();
-    m_controller->StopGrabImage();
-    m_laser->CloseShutter();
-    m_laser->SetLaserOff();
-    ::wxUsleep(10);
+    m_controller->DoSingleShot();
 }
 
 void MainFrame::OnEStop(wxCommandEvent& event)
 {
-    SafeClose();
+    m_controller->Close();
 }
 
-void MainFrame::UpdateUI(bool enable)
+void MainFrame::UpdateUI(const wxString& info, bool enable)
 {
+    SetStatusText(info);
+
     m_checkLaserButton->Enable(enable);
     m_openShutterButton->Enable(enable);
     m_closeShutterButton->Enable(enable);
@@ -580,10 +499,7 @@ void MainFrame::OnSetPower(wxCommandEvent& event)
 {
     int power = m_powerSpinCtrl->GetValue();        
     if(power > 0 && power <= 100) {
-        m_laser->SetPower(power);
-
-        boost::shared_ptr<wxConfig> config(new wxConfig(Parameters::AppName));
-        config->Write(Parameters::PowerPercent, power);
+        m_controller->SetLaserPowerPercent(power);
     } else {
         ::wxMessageBox("Power range (1-100)", "error");
     }
@@ -591,17 +507,17 @@ void MainFrame::OnSetPower(wxCommandEvent& event)
 
 void MainFrame::OnLaserOn(wxCommandEvent& event)
 {
-    m_laser->SetLaserOn();
+    m_controller->SetLaserOn();
 }
 
 void MainFrame::OnLaserOff(wxCommandEvent& event)
 {
-    m_laser->SetLaserOff();
+    m_controller->SetLaserOff();
 }
 
 void MainFrame::OnLaserStandby(wxCommandEvent& event)
 {
-    m_laser->SetLaserStandby();
+    m_controller->SetLaserStandby();
 }
 
 void MainFrame::OnTimer(wxTimerEvent &event)
@@ -620,7 +536,7 @@ void MainFrame::OnClose(wxCloseEvent &event)
     if(ok == wxYES) {
         Hide();
 
-        SafeClose();
+        m_controller->Close();
         Destroy();
     } else {
         event.Veto();
@@ -654,48 +570,69 @@ void MainFrame::OnCheckDisplayImage(wxCommandEvent& event)
 
 void MainFrame::OnChooseImagePath(wxCommandEvent& event)
 {
-    wxString dirHome;
-    wxGetHomeDir(&dirHome);
-    int style = wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST;
-
-    wxDirDialog dialog(this, _T("Testing directory picker"), dirHome, style);
-
-    if (dialog.ShowModal() == wxID_OK)
-    {
-        //wxLogMessage(_T("Selected path: %s"), dialog.GetPath().c_str());
-        wxString path = dialog.GetPath();
-        m_imagePathText->SetLabel(path);
-
-        boost::scoped_ptr<wxConfig> config(new wxConfig(Parameters::AppName));
-        config->Write(Parameters::ImagePath, path);
-    }
+    m_controller->ChooseImagePath();
 }
 
 void MainFrame::OnEpc(wxCommandEvent &event)
 {
-    m_laser->SetEPCOn();
+    m_controller->SetLaserEpcOn();
 }
 
-void MainFrame::OnUpdateLaserStatus(wxUpdateUIEvent& event)
+void MainFrame::SetLaserStatus(const wxString& laser)
 {
-    wxString label = m_laserStatusText->GetLabel();
-    wxColour color;
-    if(label == "On") {
-        color = *wxRED;
+    m_laserStatusText->SetLabel(laser);
+    if(laser == "On") {
+        m_laserStatusText->SetBackgroundColour(*wxRED);
     } else {
-        color = *wxWHITE;
+        m_laserStatusText->SetBackgroundColour(*wxWHITE);
     }
-    m_laserStatusText->SetBackgroundColour(color);
 }
 
-void MainFrame::OnUpdateShutterStatus(wxUpdateUIEvent& event)
+void MainFrame::SetShutterStatus(const wxString& shutter)
 {
-    bool open = m_laser->IsShutterOpen();
-    wxColour color;
-    if(open) {
-        color = *wxRED;
+    m_shutterStatusText->SetLabel(shutter);
+    if(shutter == "Open") {
+        m_shutterStatusText->SetBackgroundColour(*wxRED);
     } else {
-        color = *wxWHITE;
+        m_shutterStatusText->SetBackgroundColour(*wxWHITE);
     }
-    m_shutterStatusText->SetBackgroundColour(color);
+ 
+}
+
+void MainFrame::SetPowerPercent(const wxString& powerPercent)
+{
+    m_powerPercentText->SetLabel(powerPercent);
+}
+
+void MainFrame::SetPowerWatt(const wxString& powerWatt)
+{
+    m_powerWattText->SetLabel(powerWatt);
+}
+
+void MainFrame::SetEpc(const wxString& epc)
+{
+    m_epcText->SetLabel(epc);
+}
+
+void MainFrame::SetInterlock(const wxString& lock)
+{
+    m_interlockText->SetLabel(lock);
+}
+
+void MainFrame::SetImagePath(const wxString& path)
+{
+    m_imagePathText->SetLabel(path);
+}
+
+void MainFrame::SetPowerSpin(int power)
+{
+    m_powerSpinCtrl->SetValue(power);
+}
+
+void MainFrame::PrepareRun()
+{
+    m_runButton->Enable(false);
+    m_timer.Start(1000);
+    m_processTime = 0;
+    m_processStatusText->SetLabel("Running....");    
 }

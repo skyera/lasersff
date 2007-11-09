@@ -3,17 +3,19 @@
 
 #include <wx/thread.h>
 
-class MainFrame;
+namespace rcam {
+    class Controller;
+}
 
 class LaserThread: public wxThread
 {
 public:
-    LaserThread(MainFrame *frame);
+    LaserThread(rcam::Controller *controller);
 
     virtual void* Entry();
     virtual void OnExit();
 private:
-    MainFrame *m_frame;
+    rcam::Controller *m_controller;
 };
 
 #endif

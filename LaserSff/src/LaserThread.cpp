@@ -1,14 +1,14 @@
 #include "LaserThread.h"
-#include "MainFrame.h"
+#include "Controller.h"
 
-LaserThread::LaserThread(MainFrame *frame)
+LaserThread::LaserThread(rcam::Controller *controller)
 {
-    m_frame = frame;
+    m_controller = controller;
 }
 
 void* LaserThread::Entry()
 {
-    m_frame->MonitorLaser();
+    m_controller->MonitorLaser();
     return NULL;
 }
 
