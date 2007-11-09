@@ -12,6 +12,7 @@
 #include <wx/dir.h>
 #include "MainFrame.h"
 #include "LaserThread.h"
+#include <boost/lexical_cast.hpp>
 
 using namespace rcam;
 using namespace std;
@@ -340,7 +341,13 @@ bool MultiFabController::SetLaserPowerPercent(int percent)
     m_frame->SetPowerPercent(power);
     
     boost::shared_ptr<wxConfig> config(new wxConfig(Parameters::AppName));
-    config->Write(Parameters::PowerPercent, power);
+
+    try {
+        int p = boost::lexical_cast<int>(power);
+        config->Write(Parameters::PowerPercent, p);
+    } catch(boost::bad_lexical_cast &err) {
+    }
+    
     return true;
 }
 
