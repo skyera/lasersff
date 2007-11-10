@@ -256,7 +256,7 @@ string MultiFabController::CreateDirectory(const string& rootpath)
     int sec = now.GetSecond();
 
     wxString path;
-    path << year << "-" << month << "-" << day << "-" << hour << "-" << min << "-" << sec;
+    path << year << "-" << month + 1<< "-" << day << "-" << hour << "-" << min << "-" << sec;
     path = wxString(rootpath.c_str()) + "\\" + path;
     bool ok = ::wxMkDir(path);
     if(!ok) {
