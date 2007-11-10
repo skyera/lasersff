@@ -8,6 +8,7 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include "PCI1200.h"
+#include <wx/thread.h>
 
 namespace rcam {
 
@@ -46,8 +47,7 @@ public:
     std::string GetInterlockStatus();
     virtual void SetDaqboard(const boost::shared_ptr<DaqBoard>& board);
 private:
-    std::string ReadResponse();
-    void Write(const std::string& cmd);
+    std::string Send(const std::string& cmd);
 
     // data
     bool m_connected;
@@ -55,6 +55,7 @@ private:
     boost::shared_ptr<DaqBoard> m_daqboard;
     bool m_shutterStatus;
     bool m_laserOn;
+    wxMutex m_mutex;
 };
 
 }
