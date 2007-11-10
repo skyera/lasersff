@@ -59,8 +59,7 @@ bool YagLaser::OpenShutter()
 
     for(int i = 0; i < N; i++) {
         string cmd("C1\r");
-        Write(cmd);
-        ReadResponse();
+        Send(cmd);
     }
     return true;
 }
@@ -73,8 +72,7 @@ bool YagLaser::CloseShutter()
 
     for(int i = 0; i < N; i++) {
         string cmd("C0\r");
-        Write(cmd);
-        ReadResponse();
+        Send(cmd);
     }
     return true;
 }
@@ -86,8 +84,7 @@ bool YagLaser::SetLaserOn()
     }
 
     string cmd("B2\r");
-    Write(cmd);
-    ReadResponse();
+    Send(cmd);
     return true;
 }
 
@@ -97,8 +94,7 @@ bool YagLaser::SetLaserOff()
         return false;
     }
     string cmd("B0\r");
-    Write(cmd);
-    ReadResponse();
+    Send(cmd);
     return true;
 }
 
@@ -109,8 +105,7 @@ bool YagLaser::SetLaserStandby()
     }
     string cmd("B1\r");
 
-    Write(cmd);
-    ReadResponse();
+    Send(cmd);
     return true;
 }
 
@@ -124,8 +119,7 @@ string YagLaser::GetLaserStatus()
     for(int i = 0; i < N; i++) {
         string cmd("O1\r");
 
-        Write(cmd);
-        st = ReadResponse();
+        st = Send(cmd);
         if(st == "OF") {
             st = "Off";        
         } else if(st == "ST") {
@@ -154,8 +148,7 @@ string YagLaser::GetShutterStatus()
     for(int i = 0; i < N; i++) {
         string cmd("O2\r");
 
-        Write(cmd);
-        st = ReadResponse();
+        st = Send(cmd);
         if(st == "OP") {
             st = "Open";
             m_shutterStatus = true;
@@ -178,8 +171,7 @@ string YagLaser::GetPowerPercent()
     int power;
     for(int i = 0; i < N; i++) {
         string cmd("OA\r");
-        Write(cmd);
-        response = ReadResponse();
+        response = Send(cmd);
 
         try {
             power = boost::lexical_cast<int>(response);
@@ -202,8 +194,7 @@ string YagLaser::GetPowerWatt()
 
     for(int i = 0; i < N; i++) {
         string cmd("O3\r");
-        Write(cmd);
-        response = ReadResponse();
+        response = Send(cmd);
         try {
             int p = boost::lexical_cast<int>(response);
             wxString s;
@@ -223,9 +214,9 @@ bool YagLaser::SetEPCOn()
     }
 
     string cmd("i1\r");
+    
+    Send(cmd);
 
-    Write(cmd);
-    ReadResponse();
     SetEPCHighValue();
     SetEPCLowValue();
     return true;
@@ -237,8 +228,7 @@ bool YagLaser::SetEPCOff()
         return false;
     }
     string cmd("i0\r");
-    Write(cmd);
-    ReadResponse();
+    Send(cmd);
     return true;
 }
 
@@ -248,8 +238,7 @@ bool YagLaser::SingleShot()
         return false;
     }
     string cmd("X\r");
-    Write(cmd);
-    ReadResponse();
+    Send(cmd);
     return true;
 }
 
@@ -273,8 +262,7 @@ bool YagLaser::SetEPCHighValue()
         return false;
     }
     string cmd("g100\r");
-    Write(cmd);
-    ReadResponse();
+    Send(cmd);
     return true;
 }
 
@@ -284,8 +272,7 @@ bool YagLaser::SetEPCLowValue()
         return false;
     }
     string cmd("h0\r");
-    Write(cmd);
-    ReadResponse();
+    Send(cmd);
     return true;
 }
 
@@ -296,8 +283,7 @@ string YagLaser::GetEPCStatus()
     }
     string cmd("Oj\r");
 
-    Write(cmd);
-    string response = ReadResponse();
+    string response = Send(cmd);
 
     try {
         int code = boost::lexical_cast<int>(response);
@@ -316,25 +302,12 @@ string YagLaser::GetEPCStatus()
     return response;
 }
 
-string YagLaser::ReadResponse()
-{
-    ::wxUsleep(10);
-    string response;
-    int len = m_serialPortPtr->Read(response);
 
-    return response;
-}
-
-void YagLaser::Write(const string& cmd)
-{
-    int n = m_serialPortPtr->Write(cmd);
-}
 
 string YagLaser::GetInterlockStatus()
 {
     string cmd("O5\r");
-    Write(cmd);
-    string response = ReadResponse();
+    string response = Send(cmd);
 
     static char *Interlock[] = {"OK", // 0
         "Interlock Diagnostic Failure",//1
@@ -396,4 +369,15 @@ bool YagLaser::IsShutterOpen()
 bool YagLaser::IsLaserOn()
 {
     return m_laserOn;
+}
+
+string YagLaser::Send(const std::string &cmd)
+{
+    wxMutexLocker lock(m_mutex);
+    int n = m_serialPortPtr->Write(cmd);
+    ::wxUsleep(10);
+    string response;
+    int len = m_serialPortPtr->Read(response);
+
+    return response;
 }
