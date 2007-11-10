@@ -663,3 +663,8 @@ int MainFrame::GetThreshold()
 {
     return m_thresholdSlider->GetValue();
 }
+
+wxString MainFrame::GetImagePath()
+{
+    return m_imagePathText->GetValue();
+}

@@ -58,6 +58,7 @@ public:
     void SetSavedImageNumber(int num);
     bool IsDisplayBinaryImage();
     int GetThreshold();
+    wxString GetImagePath();
 private:
     void CreateMenu();
     void CreateControls();
