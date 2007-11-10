@@ -186,13 +186,20 @@ void MultiFabController::DoAcquireImage()
     
     string path = m_imagePath.c_str();
     HWND hwnd = m_frame->GetDisplayWindow();
-    long max = m_frame->GetMaxNumSaveImages();
 
     while(m_acquireImage) {
         m_frameGrabber->AcquireImage();
+        
+        bool saveImage = false;
+        if(m_frame->IsAutoSaveImage()) {
+            if(m_laserPtr->IsLaserOn() && m_laserPtr->IsShutterOpen()) {
+                saveImage = true;
+            }
+        } else if(m_frame->IsSaveImage()) {
+            saveImage = true;
+        }
 
-        // save
-        if(m_frame->IsSaveImage() && count < max) {
+        if(saveImage) {
             wxString filename;
             filename << path.c_str() << "\\" << count << ".bmp";
             m_frameGrabber->SaveImage(string(filename.c_str()));

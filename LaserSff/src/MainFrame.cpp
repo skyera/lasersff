@@ -398,12 +398,22 @@ wxPanel* MainFrame::CreateRightPanel(wxPanel *parent)
             upsizer->Add(m_thresholdSlider, wxSizerFlags(0).Expand());
         }
 
+        // save option
+        wxArrayString str;
+        str.Add("Auto save");
+        str.Add("Manual save");
+
+        m_saveOptionRadioBox = new wxRadioBox(uppanel, -1, "Save Option", 
+                                              wxDefaultPosition, wxDefaultSize, str,
+                                              2, wxRA_SPECIFY_COLS);
+        upsizer->Add(m_saveOptionRadioBox, wxSizerFlags().Border(wxALL, 5).Expand());
+
         m_saveImageCheck = new wxCheckBox(uppanel, -1, "Save Image");
         upsizer->Add(m_saveImageCheck, wxSizerFlags().Align(wxALIGN_LEFT).Border(wxALL, 5).Expand());
 
-        upsizer->Add(new wxStaticText(uppanel, -1, "Maximum number of images to save"), wxSizerFlags().Align(wxALIGN_LEFT));
-        m_maxNumImageText = new wxTextCtrl(uppanel, -1, "2000");
-        upsizer->Add(m_maxNumImageText, wxSizerFlags().Align(wxALIGN_LEFT).Expand());
+//        upsizer->Add(new wxStaticText(uppanel, -1, "Maximum number of images to save"), wxSizerFlags().Align(wxALIGN_LEFT));
+//        m_maxNumImageText = new wxTextCtrl(uppanel, -1, "2000");
+//        upsizer->Add(m_maxNumImageText, wxSizerFlags().Align(wxALIGN_LEFT).Expand());
 
         upsizer->Add(new wxStaticText(uppanel, -1, "Number of images saved"), wxSizerFlags().Align(wxALIGN_LEFT));
         m_numSavedImageText = new wxTextCtrl(uppanel, -1, "0");
@@ -667,4 +677,9 @@ int MainFrame::GetThreshold()
 wxString MainFrame::GetImagePath()
 {
     return m_imagePathText->GetValue();
+}
+
+bool MainFrame::IsAutoSaveImage()
+{
+    return m_saveOptionRadioBox->GetSelection() == 0;
 }
