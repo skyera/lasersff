@@ -545,13 +545,7 @@ void MainFrame::OnCheckDisplayImage(wxCommandEvent& event)
 {
     if(m_displayImageCheck->GetValue()) {
         wxBusyInfo info("setup frame grabber, please wait", this);
-        bool ok = m_controller->StartGrabImage(m_poolPanel, 
-            m_binaryImageCheck,
-            m_thresholdSlider,
-            m_saveImageCheck,
-            m_maxNumImageText,
-            m_imagePathText,
-            m_numSavedImageText);
+        bool ok = m_controller->StartGrabImage();
 
         if(!ok) {
             m_displayImageCheck->SetValue(false);
@@ -633,4 +627,39 @@ void MainFrame::PrepareRun()
     m_timer.Start(1000);
     m_processTime = 0;
     m_processStatusText->SetLabel("Running....");    
+}
+
+
+HWND MainFrame::GetDisplayWindow()
+{
+    return static_cast<HWND>(m_poolPanel->GetHandle());
+}
+
+int MainFrame::GetMaxNumSaveImages()
+{
+    long max = 0;
+    m_maxNumImageText->GetValue().ToLong(&max);
+    return max;
+}
+
+bool MainFrame::IsSaveImage()
+{
+    return m_saveImageCheck->GetValue();
+}
+
+void MainFrame::SetSavedImageNumber(int num)
+{
+    wxString s;
+    s << num;
+    m_numSavedImageText->SetLabel(s);
+}
+
+bool MainFrame::IsDisplayBinaryImage()
+{
+    return m_binaryImageCheck->GetValue();
+}
+
+int MainFrame::GetThreshold()
+{
+    return m_thresholdSlider->GetValue();
 }

@@ -154,22 +154,8 @@ bool MultiFabController::EmergencyStop()
     return true;
 }
 
-bool MultiFabController::StartGrabImage(wxWindow* displayWindow, 
-                                        wxCheckBox* binaryImage, 
-                                        wxSlider *threshold,
-                                        wxCheckBox *saveImage,
-                                        wxTextCtrl *maxNumImage,
-                                        wxTextCtrl *imagePath,
-                                        wxTextCtrl *numSavedImage)
+bool MultiFabController::StartGrabImage()
 {
-    m_displayWindow = displayWindow;
-    m_binaryImageCheckBox = binaryImage;
-    m_thresholdSlider = threshold;
-    m_saveImageCheckBox = saveImage;
-    m_maxNumImageText = maxNumImage;
-    m_imagePathText = imagePath;
-    m_numSavedImageText = numSavedImage;
-
     bool ok = m_frameGrabber->Init();
     if(!ok) {
         return false;
@@ -180,7 +166,7 @@ bool MultiFabController::StartGrabImage(wxWindow* displayWindow,
     if(m_imageThread->Create() != wxTHREAD_NO_ERROR) {
         return false;
     }
-    string path = CreateDirectory(m_imagePathText->GetValue().c_str());
+    string path = CreateDirectory(m_imagePath);
     m_imagePath = path.c_str();
     m_imageThread->Run();
     return true;
@@ -199,29 +185,26 @@ void MultiFabController::DoAcquireImage()
     int count = 0;
     
     string path = m_imagePath.c_str();
-    HWND hwnd = static_cast<HWND>(m_displayWindow->GetHandle());
-    long max;
-    m_maxNumImageText->GetValue().ToLong(&max);
+    HWND hwnd = m_frame->GetDisplayWindow();
+    long max = m_frame->GetMaxNumSaveImages();
 
     while(m_acquireImage) {
         m_frameGrabber->AcquireImage();
 
         // save
-        if(m_saveImageCheckBox->GetValue() && count < max) {
+        if(m_frame->IsSaveImage() && count < max) {
             wxString filename;
             filename << path.c_str() << "\\" << count << ".bmp";
             m_frameGrabber->SaveImage(string(filename.c_str()));
 
-            wxString numstr;
-            numstr << count;
-            m_numSavedImageText->SetLabel(numstr);
+            m_frame->SetSavedImageNumber(count);
             count++;
         }
 
         // binary
-        if(m_binaryImageCheckBox->GetValue()) {
+        if(m_frame->IsDisplayBinaryImage()) {
             //wxMutexGuiEnter();
-            int threshold = m_thresholdSlider->GetValue();
+            int threshold = m_frame->GetThreshold();
             //wxMutexGuiLeave();
             m_frameGrabber->BinaryImage(threshold);
         } 
