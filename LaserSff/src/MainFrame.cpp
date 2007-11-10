@@ -406,6 +406,8 @@ wxPanel* MainFrame::CreateRightPanel(wxPanel *parent)
         m_saveOptionRadioBox = new wxRadioBox(uppanel, -1, "Save Option", 
                                               wxDefaultPosition, wxDefaultSize, str,
                                               2, wxRA_SPECIFY_COLS);
+        m_saveOptionRadioBox->SetItemToolTip(0, "save image automatically when laser is on and shutter is open");
+        m_saveOptionRadioBox->SetItemToolTip(1, "save image only when ou check the save image checkbox");
         upsizer->Add(m_saveOptionRadioBox, wxSizerFlags().Border(wxALL, 5).Expand());
 
         m_saveImageCheck = new wxCheckBox(uppanel, -1, "Save Image");
