@@ -52,6 +52,12 @@ public:
     void UpdateUI(const wxString& info, bool enable);
     void PrepareRun();
     void FinishRun();
+    HWND GetDisplayWindow();
+    int GetMaxNumSaveImages();
+    bool IsSaveImage();
+    void SetSavedImageNumber(int num);
+    bool IsDisplayBinaryImage();
+    int GetThreshold();
 private:
     void CreateMenu();
     void CreateControls();

@@ -25,13 +25,7 @@ public:
     virtual bool MonitorLaser();
     virtual boost::shared_ptr<Laser> GetLaser();
     virtual bool EmergencyStop();
-    virtual bool StartGrabImage(wxWindow* displayWindow, 
-                                wxCheckBox* binaryImage, 
-                                wxSlider *threshold,
-                                wxCheckBox *saveImage,
-                                wxTextCtrl *maxNumImage,
-                                wxTextCtrl *imagePath,
-                                wxTextCtrl *numSavedImage);
+    virtual bool StartGrabImage();
     virtual bool StopGrabImage();
     virtual bool IsDisplayingImage();
     virtual wxString GetImagePath();
@@ -65,14 +59,6 @@ private:
 
     bool m_estop;
     bool m_acquireImage;
-
-    wxWindow* m_displayWindow;
-    wxCheckBox* m_binaryImageCheckBox;
-    wxSlider *m_thresholdSlider;
-    wxCheckBox *m_saveImageCheckBox;
-    wxTextCtrl *m_maxNumImageText;
-    wxTextCtrl *m_imagePathText;
-    wxTextCtrl *m_numSavedImageText;
 
     wxString m_imagePath;
     MainFrame *m_frame;

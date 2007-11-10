@@ -26,13 +26,7 @@ public:
 
     virtual boost::shared_ptr<Laser> GetLaser() = 0;
 
-    virtual bool StartGrabImage(wxWindow* displayWindow, 
-                                wxCheckBox* binaryImage, 
-                                wxSlider *threshold,
-                                wxCheckBox *saveImage,
-                                wxTextCtrl *maxNumImage,
-                                wxTextCtrl *imagePath,
-                                wxTextCtrl *numSavedImage) = 0;
+    virtual bool StartGrabImage() = 0;
     virtual bool StopGrabImage() = 0;
     virtual bool IsDisplayingImage() = 0;
     virtual wxString GetImagePath() = 0;
