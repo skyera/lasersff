@@ -9,6 +9,7 @@
 #include <wx/listbox.h>
 #include <wx/event.h>
 #include <wx/timer.h>
+#include <wx/radiobox.h>
 
 class MainFrame: public wxFrame
 {
@@ -59,6 +60,7 @@ public:
     bool IsDisplayBinaryImage();
     int GetThreshold();
     wxString GetImagePath();
+    bool IsAutoSaveImage();
 private:
     void CreateMenu();
     void CreateControls();
@@ -114,6 +116,7 @@ private:
     wxTextCtrl *m_maxNumImageText;
     wxTextCtrl *m_numSavedImageText;
     wxButton *m_epcButton;
+    wxRadioBox *m_saveOptionRadioBox;
 
     wxTimer m_timer;
     int m_processTime;

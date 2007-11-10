@@ -11,6 +11,7 @@ const int N = 1;
 YagLaser::YagLaser(): m_connected(false)
 {
     m_shutterStatus = false;
+    m_laserOn = false;
 }
 
 YagLaser::~YagLaser()
@@ -61,7 +62,6 @@ bool YagLaser::OpenShutter()
         Write(cmd);
         ReadResponse();
     }
-    m_shutterStatus = true;
     return true;
 }
 
@@ -76,7 +76,6 @@ bool YagLaser::CloseShutter()
         Write(cmd);
         ReadResponse();
     }
-    m_shutterStatus = false;
     return true;
 }
 
@@ -117,6 +116,7 @@ bool YagLaser::SetLaserStandby()
 
 string YagLaser::GetLaserStatus()
 {
+    m_laserOn = false;
     if(!m_connected) {
         return "not connected";
     }
@@ -132,6 +132,7 @@ string YagLaser::GetLaserStatus()
             st = "Standby";
         } else if(st == "ON") {
             st = "On";
+            m_laserOn = true;
         } else if(st == "S1") {
             st = "Standby_1";
         } else if(st == "S2") {
@@ -145,6 +146,7 @@ string YagLaser::GetLaserStatus()
 
 string YagLaser::GetShutterStatus()
 {
+    m_shutterStatus = false;
     if(!m_connected) {
         return "not connected";
     }
@@ -156,8 +158,10 @@ string YagLaser::GetShutterStatus()
         st = ReadResponse();
         if(st == "OP") {
             st = "Open";
+            m_shutterStatus = true;
         } else if(st == "CL") {
             st = "Close";
+            
         } else {
             st = "Unknown";
         }
@@ -387,4 +391,9 @@ void YagLaser::SetDaqboard(const boost::shared_ptr<DaqBoard>& board)
 bool YagLaser::IsShutterOpen()
 {
     return m_shutterStatus;   
+}
+
+bool YagLaser::IsLaserOn()
+{
+    return m_laserOn;
 }
