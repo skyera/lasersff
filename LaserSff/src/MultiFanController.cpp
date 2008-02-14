@@ -166,7 +166,7 @@ bool MultiFabController::StartGrabImage()
     if(m_imageThread->Create() != wxTHREAD_NO_ERROR) {
         return false;
     }
-    string path = CreateDirectory(m_frame->GetImagePath());
+    string path = CreateDirectory(m_frame->GetImagePath().c_str());
     m_imagePath = path.c_str();
     m_imageThread->Run();
     return true;
