@@ -16,7 +16,7 @@ typedef factory::object object;
 
 namespace 
 {
-tut::factory tf("serial port operation");
+tut::factory tf("SerialPort");
 }
 
 namespace tut
@@ -30,14 +30,37 @@ void object::test<1>()
     bool ok = com.Open("COM1", 9600);
     ensure(ok);
     com.Close();
-    
+}
+
+template<>
+template<>
+void object::test<2>()
+{
     //
+    rcam::SerialPort com;
+    bool ok = false;
     try {
         com.Open("abc", 9600);
     }
-    catch(std::exception& ex) {
-        std::cerr << ex.what() << std::endl;
+    catch(std::exception&) {
+        ok = true;
     }
+    ensure(ok);
+}
+
+template<>
+template<>
+void object::test<3>()
+{
+    rcam::SerialPort com;
+    bool ok = false;
+    try {
+        com.Open("COM1", -1);
+    }
+    catch(std::exception&) {
+        ok = true;
+    }
+    ensure(ok);
 }
 
 }
