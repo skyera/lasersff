@@ -1,7 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual C++ Express 2005
+# Visual Studio 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LaserSff", "LaserSff\LaserSff.vcproj", "{A85B6595-69BA-4AA9-9F7E-3653E0C8BDBA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tests", "Tests\Tests.vcproj", "{536B2573-DF0E-4268-9870-A6C1AD6EF396}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A85B6595-69BA-4AA9-9F7E-3653E0C8BDBA} = {A85B6595-69BA-4AA9-9F7E-3653E0C8BDBA}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,6 +18,10 @@ Global
 		{A85B6595-69BA-4AA9-9F7E-3653E0C8BDBA}.Debug|Win32.Build.0 = Debug|Win32
 		{A85B6595-69BA-4AA9-9F7E-3653E0C8BDBA}.Release|Win32.ActiveCfg = Release|Win32
 		{A85B6595-69BA-4AA9-9F7E-3653E0C8BDBA}.Release|Win32.Build.0 = Release|Win32
+		{536B2573-DF0E-4268-9870-A6C1AD6EF396}.Debug|Win32.ActiveCfg = Debug|Win32
+		{536B2573-DF0E-4268-9870-A6C1AD6EF396}.Debug|Win32.Build.0 = Debug|Win32
+		{536B2573-DF0E-4268-9870-A6C1AD6EF396}.Release|Win32.ActiveCfg = Release|Win32
+		{536B2573-DF0E-4268-9870-A6C1AD6EF396}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

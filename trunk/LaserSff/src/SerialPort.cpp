@@ -19,8 +19,13 @@ bool SerialPort::Open(const string& port, int baud)
     if(m_opened) {
         return true;
     }	
+
+    if(port.find("COM") == string::npos) {
+        string msg = port + " does not contain COM: COM1...";
+        throw std::exception(msg.c_str());
+    }
     m_hcom = CreateFile(port.c_str(), GENERIC_READ|GENERIC_WRITE, 0, NULL,
-        OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+                        OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if(m_hcom == INVALID_HANDLE_VALUE) {
         return false;
     }
