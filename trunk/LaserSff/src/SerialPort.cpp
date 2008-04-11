@@ -24,6 +24,12 @@ bool SerialPort::Open(const string& port, int baud)
         string msg = port + " does not contain COM: COM1...";
         throw std::exception(msg.c_str());
     }
+    
+    if(baud <= 0) {
+        string msg = "baud rate > 0";
+        throw std::exception(msg.c_str());
+    }
+
     m_hcom = CreateFile(port.c_str(), GENERIC_READ|GENERIC_WRITE, 0, NULL,
                         OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if(m_hcom == INVALID_HANDLE_VALUE) {
@@ -50,7 +56,7 @@ bool SerialPort::Open(const string& port, int baud)
     // Set com state
     DCB dcb;
     GetCommState(m_hcom, &dcb);
-    dcb.BaudRate = 4800;
+    dcb.BaudRate = baud; //4800;
     dcb.ByteSize = 8;
     dcb.Parity = NOPARITY;
     dcb.StopBits = ONESTOPBIT;
